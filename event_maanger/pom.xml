@@ -60,6 +60,21 @@
           <artifactId>hibernate-community-dialects</artifactId>
           <version>6.4.4.Final</version>
       </dependency>
+      <dependency>
+          <groupId>org.glassfish.jersey.containers</groupId>
+          <artifactId>jersey-container-servlet</artifactId>
+          <version>4.0.0-M2</version>
+      </dependency>
+      <dependency>
+          <groupId>org.glassfish.jersey.media</groupId>
+          <artifactId>jersey-media-json-jackson</artifactId>
+          <version>4.0.0-M2</version>
+      </dependency>
+      <dependency>
+          <groupId>org.glassfish.jersey.inject</groupId>
+          <artifactId>jersey-hk2</artifactId>
+          <version>4.0.0-M2</version>
+      </dependency>
   </dependencies>
   <build>
     <plugins>

@@ -6,7 +6,7 @@
     <session-factory>
         <property name="hibernate.dialect">org.hibernate.community.dialect.SQLiteDialect</property>
         <property name="hibernate.connection.driver_class">org.sqlite.JDBC</property>
-        <property name="hibernate.connection.url">jdbc:sqlite:event_manager.sqlite</property>
+        <property name="hibernate.connection.url">jdbc:sqlite:E:/Users/Piotr/Documents/GitHub/javaee-event_manager/event_maanger/data/event_manager.sqlite</property>
         <property name="hibernate.show_sql">true</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="hibernate.format_sql">true</property>

@@ -7,6 +7,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class UserHibernate implements UserDAO {
@@ -16,6 +18,7 @@ public class UserHibernate implements UserDAO {
     Transaction transaction;
 
     public UserHibernate() {
+
         sessionFactory = new Configuration()
                 .configure("hibernate.cfg.xml")
                 .addAnnotatedClass(User.class)
