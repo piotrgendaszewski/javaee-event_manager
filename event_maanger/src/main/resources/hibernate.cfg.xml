@@ -4,13 +4,13 @@
         "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-        <property name="hibernate.dialect">org.hibernate.community.dialect.SQLiteDialect
-        </property>
+        <property name="hibernate.dialect">org.hibernate.community.dialect.SQLiteDialect</property>
         <property name="hibernate.connection.driver_class">org.sqlite.JDBC</property>
-        <property name="hibernate.connection.url">jdbc:sqlite:users.db</property>
-        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.connection.url">jdbc:sqlite:event_manager.sqlite</property>
+        <property name="hibernate.show_sql">true</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
-        <mapping class="model"/> <!-- w kolejnych linijkach wpisujemy kolejne modele -->
+        <property name="hibernate.format_sql">true</property>
+        <!--<mapping class="model"/>--> <!-- w kolejnych linijkach wpisujemy kolejne modele -->
     </session-factory>
 
 </hibernate-configuration>

@@ -8,7 +8,7 @@
     <properties>
       <property name="hibernate.dialect" value="org.hibernate.community.dialect.SQLiteDialect"/>
       <property name="jakarta.persistence.jdbc.driver" value="org.sqlite.JDBC"/>
-      <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlite:database.db"/>
+      <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlite:event_manager.sqlite"/>
     </properties>
   </persistence-unit>
 </persistence>
