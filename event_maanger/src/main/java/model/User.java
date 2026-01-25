@@ -9,6 +9,9 @@ import jakarta.persistence.*;
 public class User {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name="login", unique=true)
     private String login;
 
     @Column(name="first_name")
@@ -25,6 +28,28 @@ public class User {
 
     @Column(name = "address")
     private String address;
+
+    @Column(name = "is_admin")
+    private boolean isAdmin;
+
+    @Column(name = "password_hash")
+    private String passwordHash;
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
 
     public User() {};
 
@@ -102,4 +127,11 @@ public class User {
                 '}';
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 }
