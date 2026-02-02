@@ -1,7 +1,9 @@
 package dao;
 
 import model.Ticket;
+import model.User;
 import java.util.List;
+import java.util.Map;
 
 public interface TicketDAO {
     void rollback();
@@ -18,5 +20,10 @@ public interface TicketDAO {
 
     Ticket getTicketByEventAndSeat(int eventId, String seatNumber);
     boolean isTicketForSeatExists(int eventId, String seatNumber);
-}
 
+    // Returns list of users who bought tickets for given event
+    List<User> getUsersByEventId(int eventId);
+
+    // Returns remaining quantities per ticket type for an event (ticketType -> remainingCount)
+    Map<String, Integer> getRemainingTicketsByEvent(int eventId);
+}

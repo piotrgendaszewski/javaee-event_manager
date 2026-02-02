@@ -43,5 +43,8 @@ public class LocationService {
     public List<Location> getAllLocations() {
         return locationDAO.getAllLocations();
     }
-}
 
+    public List<model.User> getContactsForLocation(int locationId) {
+        return locationDAO.getContactsByLocationId(locationId);
+    }
+}

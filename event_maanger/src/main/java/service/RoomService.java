@@ -47,5 +47,8 @@ public class RoomService {
     public int getTotalCapacityByLocation(int locationId) {
         return roomDAO.getTotalCapacityByLocation(locationId);
     }
-}
 
+    public java.util.List<Room> getRoomsByEvent(int eventId) {
+        return roomDAO.getRoomsByEventId(eventId);
+    }
+}

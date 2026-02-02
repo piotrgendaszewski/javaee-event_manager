@@ -59,5 +59,12 @@ public class TicketService {
     public Ticket getTicketByEventAndSeat(int eventId, String seatNumber) {
         return ticketDAO.getTicketByEventAndSeat(eventId, seatNumber);
     }
-}
 
+    public java.util.List<model.User> getUsersByEvent(int eventId) {
+        return ticketDAO.getUsersByEventId(eventId);
+    }
+
+    public java.util.Map<String, Integer> getRemainingTicketsByEvent(int eventId) {
+        return ticketDAO.getRemainingTicketsByEvent(eventId);
+    }
+}

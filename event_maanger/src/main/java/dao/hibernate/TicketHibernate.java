@@ -117,4 +117,35 @@ public class TicketHibernate implements TicketDAO {
     public boolean isTicketForSeatExists(int eventId, String seatNumber) {
         return getTicketByEventAndSeat(eventId, seatNumber) != null;
     }
+
+    @Override
+    public java.util.List<User> getUsersByEventId(int eventId) {
+        String query = "SELECT DISTINCT t.user FROM Ticket t WHERE t.event.id = :eventId";
+        return session.createQuery(query, User.class)
+                .setParameter("eventId", eventId)
+                .list();
+    }
+
+    @Override
+    public java.util.Map<String, Integer> getRemainingTicketsByEvent(int eventId) {
+        // Calculate remaining tickets by comparing Event.ticketQuantities with sold tickets counts
+        Event event = session.get(Event.class, eventId);
+        java.util.Map<String, Integer> remaining = new java.util.HashMap<>();
+        if (event == null) return remaining;
+
+        if (event.getTicketQuantities() != null) {
+            for (java.util.Map.Entry<String, Integer> entry : event.getTicketQuantities().entrySet()) {
+                String type = entry.getKey();
+                Integer total = entry.getValue() != null ? entry.getValue() : 0;
+                // count sold
+                String countQuery = "SELECT COUNT(*) FROM Ticket WHERE event.id = :eventId AND ticketType = :type";
+                Integer sold = Math.toIntExact(session.createQuery(countQuery, Long.class)
+                        .setParameter("eventId", eventId)
+                        .setParameter("type", type)
+                        .getSingleResult());
+                remaining.put(type, Math.max(0, total - sold));
+            }
+        }
+        return remaining;
+    }
 }

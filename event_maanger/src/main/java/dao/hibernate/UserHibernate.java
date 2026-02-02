@@ -70,6 +70,14 @@ public class UserHibernate implements UserDAO {
             }
         } catch (Exception e) {
             System.err.println("Error initializing default admin user: " + e.getMessage());
+            // Ensure transaction is reinitialized even if there's an error
+            try {
+                if (transaction != null && transaction.isActive()) {
+                    transaction.rollback();
+                }
+                transaction = session.beginTransaction();
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -79,11 +87,19 @@ public class UserHibernate implements UserDAO {
     // Method moved to PasswordUtil class
 
     public void commit() {
-        transaction.commit();
+        if (transaction != null && transaction.isActive()) {
+            transaction.commit();
+            // Start new transaction for next operations
+            transaction = session.beginTransaction();
+        }
     }
 
     public void rollback() {
-        transaction.rollback();
+        if (transaction != null && transaction.isActive()) {
+            transaction.rollback();
+            // Start new transaction for next operations
+            transaction = session.beginTransaction();
+        }
     }
 
     @Override
@@ -117,5 +133,8 @@ public class UserHibernate implements UserDAO {
         return session.createQuery(query, User.class).list();
     }
 
-
+    @Override
+    public User getUserById(int id) {
+        return session.get(User.class, id);
+    }
 }

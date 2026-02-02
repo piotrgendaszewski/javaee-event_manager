@@ -39,4 +39,22 @@ public class UserService {
     public List<User> getAllUsers() {
         return userDAO.getAllUsers();
     }
+
+    public User getUserById(int id) {
+        return userDAO.getUserById(id);
+    }
+
+    public User createAdminUser(String login, String email, String password, String firstName, String lastName) {
+        User adminUser = addUser(login, email);
+        adminUser.setFirstName(firstName);
+        adminUser.setLastName(lastName);
+        adminUser.setAdmin(true);
+
+        if (password != null && !password.isEmpty()) {
+            adminUser.setPasswordHash(JWT.PasswordUtil.hashPassword(password));
+        }
+
+        updateUser(adminUser);
+        return adminUser;
+    }
 }

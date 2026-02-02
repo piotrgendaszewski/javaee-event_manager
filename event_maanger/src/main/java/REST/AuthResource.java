@@ -15,9 +15,12 @@ import java.util.Map;
 public class AuthResource {
 
     private final AuthService authService;
+    private UserHibernate userHibernate;
 
     public AuthResource() {
-        this.authService = new AuthService(new UserHibernate());
+        // Create single instance per request
+        this.userHibernate = new UserHibernate();
+        this.authService = new AuthService(userHibernate);
     }
 
     /**
@@ -43,7 +46,7 @@ public class AuthResource {
                     request.getAddress(),
                     request.getPhoneNumber()
             );
-            authService.commit();
+            userHibernate.commit();
 
             Map<String, String> response = new HashMap<>();
             response.put("message", "User registered successfully");
@@ -54,11 +57,13 @@ public class AuthResource {
                     .build();
 
         } catch (IllegalArgumentException e) {
+            userHibernate.rollback();
             return Response.status(Response.Status.CONFLICT)
                     .entity(errorResponse(e.getMessage()))
                     .build();
         } catch (Exception e) {
-            authService.rollback();
+            userHibernate.rollback();
+            e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(errorResponse("Registration failed: " + e.getMessage()))
                     .build();
@@ -103,12 +108,14 @@ public class AuthResource {
 
         } catch (IllegalArgumentException e) {
             System.out.println("[AuthResource] Login failed: " + e.getMessage());
+            userHibernate.rollback();
             return Response.status(Response.Status.UNAUTHORIZED)
                     .entity(errorResponse(e.getMessage()))
                     .build();
         } catch (Exception e) {
             System.out.println("[AuthResource] Unexpected error: " + e.getMessage());
             e.printStackTrace();
+            userHibernate.rollback();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(errorResponse("Login failed: " + e.getMessage()))
                     .build();

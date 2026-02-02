@@ -85,5 +85,12 @@ public class RoomHibernate implements RoomDAO {
                 .setParameter("locationId", locationId)
                 .getSingleResult());
     }
-}
 
+    @Override
+    public java.util.List<Room> getRoomsByEventId(int eventId) {
+        String query = "SELECT r FROM Event e JOIN e.rooms r WHERE e.id = :eventId";
+        return session.createQuery(query, Room.class)
+                .setParameter("eventId", eventId)
+                .list();
+    }
+}

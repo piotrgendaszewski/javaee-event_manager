@@ -19,10 +19,9 @@ public class EventMangerApplication extends Application {
 
         // Register Auth Resources
         classes.add(AuthResource.class);
-        classes.add(RoleResource.class);
 
         // Register Public Resources (no auth required)
-        classes.add(PublicEventResource.class);
+        classes.add(PublicResource.class);
 
         // Register Authenticated User Resources
         classes.add(AuthenticatedUserResource.class);
@@ -30,13 +29,6 @@ public class EventMangerApplication extends Application {
         // Register Admin Resources
         classes.add(AdminResource.class);
 
-        // Register Other Resources
-        classes.add(UserResource.class);
-        classes.add(EventResource.class);
-        classes.add(LocationResource.class);
-        classes.add(RoomResource.class);
-        classes.add(TicketResource.class);
-        classes.add(EventReviewResource.class);
 
         return classes;
     }

@@ -15,5 +15,5 @@ public interface RoomDAO {
     List<Room> getAllRooms();
     List<Room> getRoomsByLocationId(int locationId);
     int getTotalCapacityByLocation(int locationId);
+    List<Room> getRoomsByEventId(int eventId);
 }
-

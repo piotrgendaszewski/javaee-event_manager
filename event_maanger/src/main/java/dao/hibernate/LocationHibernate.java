@@ -79,5 +79,12 @@ public class LocationHibernate implements LocationDAO {
         String query = "FROM Location";
         return session.createQuery(query, Location.class).list();
     }
-}
 
+    @Override
+    public List<User> getContactsByLocationId(int locationId) {
+        String query = "SELECT contacts FROM Location l JOIN l.contacts contacts WHERE l.id = :locationId";
+        return session.createQuery(query, User.class)
+                .setParameter("locationId", locationId)
+                .list();
+    }
+}

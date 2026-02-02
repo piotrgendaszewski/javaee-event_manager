@@ -27,13 +27,23 @@ public class JwtFilter implements ContainerRequestFilter {
             return;
         }
 
-        // Allow unauthenticated access to auth endpoints and public event endpoints
-        // Path examples: "auth/login", "auth/register", "public/events"
-        if (path.startsWith("auth/") || path.startsWith("public/")) {
-            System.out.println("[JWT Filter] Public/Auth endpoint - allowing access without token");
+        // Allow public endpoints without authentication
+        // /public/* - public event browsing
+        if (path.startsWith("public/")) {
+            System.out.println("[JWT Filter] Public endpoint - allowing access without token");
             return;
         }
 
+        // Allow only auth/login and auth/register without token
+        // Other auth/* endpoints require JWT
+        // /private/* endpoints also require JWT (for authenticated users)
+        // /admin/* endpoints require JWT (will be validated here, admin check done in AdminResource)
+        if (path.equals("auth/login") || path.equals("auth/register")) {
+            System.out.println("[JWT Filter] Auth login/register endpoint - allowing access without token");
+            return;
+        }
+
+        // All other endpoints require JWT authentication
         String authHeader = requestContext.getHeaderString("Authorization");
         
         System.out.println("[JWT Filter] Authorization header: " + (authHeader != null ? "Present" : "Missing"));
