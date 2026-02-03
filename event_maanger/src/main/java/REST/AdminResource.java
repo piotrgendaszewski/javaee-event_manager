@@ -1,6 +1,7 @@
 package REST;
 
 import dao.hibernate.*;
+import dto.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
@@ -12,6 +13,7 @@ import java.util.List;
 /**
  * Admin API - Full access to all resources
  * Requires authentication and admin role
+ * Returns DTO objects to avoid nested collection issues
  */
 @Path("/admin")
 @Produces("application/json")
@@ -49,25 +51,26 @@ public class AdminResource {
 
     @GET
     @Path("/events")
-    public List<Event> getAllEvents(@Context ContainerRequestContext requestContext) {
+    public List<EventAdminDTO> getAllEvents(@Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
-        return eventService.getAllEvents();
+        List<Event> events = eventService.getAllEvents();
+        return AdminDTOMapper.toEventDTOList(events);
     }
 
     @GET
     @Path("/events/{id}")
-    public Event getEvent(@PathParam("id") int id, @Context ContainerRequestContext requestContext) {
+    public EventAdminDTO getEvent(@PathParam("id") int id, @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
         Event event = eventService.getEvent(id);
         if (event == null) {
             throw new NotFoundException("Event not found with id: " + id);
         }
-        return event;
+        return AdminDTOMapper.toEventDTO(event);
     }
 
     @POST
     @Path("/events")
-    public Event createEvent(Event event, @Context ContainerRequestContext requestContext) {
+    public EventAdminDTO createEvent(Event event, @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
         if (event.getName() == null || event.getName().trim().isEmpty()) {
             throw new BadRequestException("Event name is required");
@@ -92,12 +95,12 @@ public class AdminResource {
             }
         }
         eventService.commit();
-        return newEvent;
+        return AdminDTOMapper.toEventDTO(newEvent);
     }
 
     @PUT
     @Path("/events/{id}")
-    public Event updateEvent(@PathParam("id") int id, Event event,
+    public EventAdminDTO updateEvent(@PathParam("id") int id, Event event,
                             @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
         Event existingEvent = eventService.getEvent(id);
@@ -107,7 +110,7 @@ public class AdminResource {
         event.setId(id);
         eventService.updateEvent(event);
         eventService.commit();
-        return event;
+        return AdminDTOMapper.toEventDTO(event);
     }
 
     @DELETE
@@ -125,25 +128,26 @@ public class AdminResource {
 
     @GET
     @Path("/locations")
-    public List<Location> getAllLocations(@Context ContainerRequestContext requestContext) {
+    public List<LocationAdminDTO> getAllLocations(@Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
-        return locationService.getAllLocations();
+        List<Location> locations = locationService.getAllLocations();
+        return AdminDTOMapper.toLocationDTOList(locations);
     }
 
     @GET
     @Path("/locations/{id}")
-    public Location getLocation(@PathParam("id") int id, @Context ContainerRequestContext requestContext) {
+    public LocationAdminDTO getLocation(@PathParam("id") int id, @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
         Location location = locationService.getLocation(id);
         if (location == null) {
             throw new NotFoundException("Location not found with id: " + id);
         }
-        return location;
+        return AdminDTOMapper.toLocationDTO(location);
     }
 
     @POST
     @Path("/locations")
-    public Location createLocation(Location location, @Context ContainerRequestContext requestContext) {
+    public LocationAdminDTO createLocation(Location location, @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
         if (location.getName() == null || location.getName().trim().isEmpty()) {
             throw new BadRequestException("Location name is required");
@@ -158,12 +162,12 @@ public class AdminResource {
         newLocation.setMaxAvailableSeats(location.getMaxAvailableSeats());
         locationService.updateLocation(newLocation);
         locationService.commit();
-        return newLocation;
+        return AdminDTOMapper.toLocationDTO(newLocation);
     }
 
     @PUT
     @Path("/locations/{id}")
-    public Location updateLocation(@PathParam("id") int id, Location location,
+    public LocationAdminDTO updateLocation(@PathParam("id") int id, Location location,
                                   @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
         Location existingLocation = locationService.getLocation(id);
@@ -179,7 +183,7 @@ public class AdminResource {
         location.setId(id);
         locationService.updateLocation(location);
         locationService.commit();
-        return location;
+        return AdminDTOMapper.toLocationDTO(location);
     }
 
     @DELETE
@@ -197,25 +201,26 @@ public class AdminResource {
 
     @GET
     @Path("/rooms")
-    public List<Room> getAllRooms(@Context ContainerRequestContext requestContext) {
+    public List<RoomAdminDTO> getAllRooms(@Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
-        return roomService.getAllRooms();
+        List<Room> rooms = roomService.getAllRooms();
+        return AdminDTOMapper.toRoomDTOList(rooms);
     }
 
     @GET
     @Path("/rooms/{id}")
-    public Room getRoom(@PathParam("id") int id, @Context ContainerRequestContext requestContext) {
+    public RoomAdminDTO getRoom(@PathParam("id") int id, @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
         Room room = roomService.getRoom(id);
         if (room == null) {
             throw new NotFoundException("Room not found with id: " + id);
         }
-        return room;
+        return AdminDTOMapper.toRoomDTO(room);
     }
 
     @POST
     @Path("/rooms")
-    public Room createRoom(Room room, @Context ContainerRequestContext requestContext) {
+    public RoomAdminDTO createRoom(Room room, @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
 
         if (room.getName() == null || room.getName().trim().isEmpty()) {
@@ -242,12 +247,12 @@ public class AdminResource {
         newRoom.setSeatCapacity(room.getSeatCapacity());
         roomService.updateRoom(newRoom);
         roomService.commit();
-        return newRoom;
+        return AdminDTOMapper.toRoomDTO(newRoom);
     }
 
     @PUT
     @Path("/rooms/{id}")
-    public Room updateRoom(@PathParam("id") int id, Room room,
+    public RoomAdminDTO updateRoom(@PathParam("id") int id, Room room,
                           @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
         Room existingRoom = roomService.getRoom(id);
@@ -266,7 +271,7 @@ public class AdminResource {
         room.setId(id);
         roomService.updateRoom(room);
         roomService.commit();
-        return room;
+        return AdminDTOMapper.toRoomDTO(room);
     }
 
     @DELETE
@@ -280,213 +285,30 @@ public class AdminResource {
         }
     }
 
-    // ===== TICKET MANAGEMENT =====
-
-    @GET
-    @Path("/tickets")
-    public List<Ticket> getAllTickets(@Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        return ticketService.getAllTickets();
-    }
-
-    @GET
-    @Path("/tickets/{id}")
-    public Ticket getTicket(@PathParam("id") int id, @Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        Ticket ticket = ticketService.getTicket(id);
-        if (ticket == null) {
-            throw new NotFoundException("Ticket not found with id: " + id);
-        }
-        return ticket;
-    }
-
-    @GET
-    @Path("/tickets/event/{eventId}")
-    public List<Ticket> getTicketsByEvent(@PathParam("eventId") int eventId,
-                                         @Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        return ticketService.getTicketsByEvent(eventId);
-    }
-
-    @GET
-    @Path("/tickets/user/{userId}")
-    public List<Ticket> getTicketsByUser(@PathParam("userId") int userId,
-                                        @Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        return ticketService.getTicketsByUser(userId);
-    }
-
-    @POST
-    @Path("/tickets")
-    public Ticket createTicket(Ticket ticket, @Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        if (ticket.getEvent() == null || ticket.getUser() == null) {
-            throw new BadRequestException("Event and User are required for ticket creation");
-        }
-        if (ticket.getTicketType() == null || ticket.getTicketType().trim().isEmpty()) {
-            throw new BadRequestException("Ticket type is required");
-        }
-        if (ticket.getPrice() < 0) {
-            throw new BadRequestException("Ticket price cannot be negative");
-        }
-
-        Ticket newTicket = ticketService.addTicket(
-                ticket.getEvent().getId(),
-                ticket.getUser().getId(),
-                ticket.getTicketType(),
-                ticket.getPrice(),
-                ticket.getPurchaseDate(),
-                ticket.getValidFromDate(),
-                ticket.getValidToDate()
-        );
-        ticketService.commit();
-        return newTicket;
-    }
-
-    @PUT
-    @Path("/tickets/{id}")
-    public Ticket updateTicket(@PathParam("id") int id, Ticket ticket,
-                              @Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        Ticket existingTicket = ticketService.getTicket(id);
-        if (existingTicket == null) {
-            throw new NotFoundException("Ticket not found with id: " + id);
-        }
-        ticket.setId(id);
-        ticketService.updateTicket(ticket);
-        ticketService.commit();
-        return ticket;
-    }
-
-    @DELETE
-    @Path("/tickets/{id}")
-    public void deleteTicket(@PathParam("id") int id, @Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        Ticket ticket = ticketService.getTicket(id);
-        if (ticket != null) {
-            ticketService.deleteTicket(ticket);
-            ticketService.commit();
-        }
-    }
-
-    // ===== REVIEW MANAGEMENT =====
-
-    @GET
-    @Path("/reviews")
-    public List<EventReview> getAllReviews(@Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        return eventReviewService.getAllReviews();
-    }
-
-    @GET
-    @Path("/reviews/{id}")
-    public EventReview getReview(@PathParam("id") int id, @Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        EventReview review = eventReviewService.getReview(id);
-        if (review == null) {
-            throw new NotFoundException("Review not found with id: " + id);
-        }
-        return review;
-    }
-
-    @GET
-    @Path("/reviews/event/{eventId}")
-    public List<EventReview> getReviewsByEvent(@PathParam("eventId") int eventId,
-                                              @Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        return eventReviewService.getReviewsByEvent(eventId);
-    }
-
-    @GET
-    @Path("/reviews/user/{userId}")
-    public List<EventReview> getReviewsByUser(@PathParam("userId") int userId,
-                                             @Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        return eventReviewService.getReviewsByUser(userId);
-    }
-
-    @POST
-    @Path("/reviews")
-    public EventReview createReview(EventReview review, @Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        if (review.getEvent() == null || review.getUser() == null) {
-            throw new BadRequestException("Event and User are required for review creation");
-        }
-        if (review.getRating() < 1 || review.getRating() > 5) {
-            throw new BadRequestException("Rating must be between 1 and 5 stars");
-        }
-
-        int eventId = review.getEvent().getId();
-        int userId = review.getUser().getId();
-
-        if (eventReviewService.hasUserReviewedEvent(eventId, userId)) {
-            throw new BadRequestException("User has already reviewed this event");
-        }
-
-        EventReview newReview = eventReviewService.addReview(
-                eventId,
-                userId,
-                review.getRating(),
-                review.getReviewText(),
-                review.getReviewDate()
-        );
-        eventReviewService.commit();
-        return newReview;
-    }
-
-    @PUT
-    @Path("/reviews/{id}")
-    public EventReview updateReview(@PathParam("id") int id, EventReview review,
-                                   @Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        EventReview existingReview = eventReviewService.getReview(id);
-        if (existingReview == null) {
-            throw new NotFoundException("Review not found with id: " + id);
-        }
-        if (review.getRating() < 1 || review.getRating() > 5) {
-            throw new BadRequestException("Rating must be between 1 and 5 stars");
-        }
-
-        review.setId(id);
-        eventReviewService.updateReview(review);
-        eventReviewService.commit();
-        return review;
-    }
-
-    @DELETE
-    @Path("/reviews/{id}")
-    public void deleteReview(@PathParam("id") int id, @Context ContainerRequestContext requestContext) {
-        verifyAdminAccess(requestContext);
-        EventReview review = eventReviewService.getReview(id);
-        if (review != null) {
-            eventReviewService.deleteReview(review);
-            eventReviewService.commit();
-        }
-    }
-
     // ===== USER MANAGEMENT =====
 
     @GET
     @Path("/users")
-    public List<User> getAllUsers(@Context ContainerRequestContext requestContext) {
+    public List<UserAdminDTO> getAllUsers(@Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
-        return userService.getAllUsers();
+        List<User> users = userService.getAllUsers();
+        return AdminDTOMapper.toUserDTOList(users);
     }
 
     @GET
     @Path("/users/{id}")
-    public User getUser(@PathParam("id") int id, @Context ContainerRequestContext requestContext) {
+    public UserAdminDTO getUser(@PathParam("id") int id, @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
         User user = userService.getUserById(id);
         if (user == null) {
             throw new NotFoundException("User not found with id: " + id);
         }
-        return user;
+        return AdminDTOMapper.toUserDTO(user);
     }
 
     @POST
     @Path("/users")
-    public User createUser(User user, @Context ContainerRequestContext requestContext) {
+    public UserAdminDTO createUser(User user, @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
         if (user.getLogin() == null || user.getLogin().trim().isEmpty()) {
             throw new BadRequestException("User login is required");
@@ -504,7 +326,7 @@ public class AdminResource {
             newUser.setAdmin(user.isAdmin());
             userService.updateUser(newUser);
             userService.commit();
-            return newUser;
+            return AdminDTOMapper.toUserDTO(newUser);
         } catch (IllegalArgumentException e) {
             throw new BadRequestException(e.getMessage());
         }
@@ -513,11 +335,10 @@ public class AdminResource {
     /**
      * Create new admin user with password
      * POST /admin/users/create-admin
-     * Accepts User object and automatically sets isAdmin=true
      */
     @POST
     @Path("/users/create-admin")
-    public User createAdminUser(User user, @Context ContainerRequestContext requestContext) {
+    public UserAdminDTO createAdminUser(User user, @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
 
         if (user.getLogin() == null || user.getLogin().trim().isEmpty()) {
@@ -539,7 +360,7 @@ public class AdminResource {
                     user.getLastName()
             );
             userService.commit();
-            return newAdmin;
+            return AdminDTOMapper.toUserDTO(newAdmin);
         } catch (IllegalArgumentException e) {
             throw new BadRequestException(e.getMessage());
         }
@@ -547,7 +368,7 @@ public class AdminResource {
 
     @PUT
     @Path("/users/{id}")
-    public User updateUser(@PathParam("id") int id, User user,
+    public UserAdminDTO updateUser(@PathParam("id") int id, User user,
                           @Context ContainerRequestContext requestContext) {
         verifyAdminAccess(requestContext);
         User existingUser = userService.getUserById(id);
@@ -558,7 +379,7 @@ public class AdminResource {
         user.setId(id);
         userService.updateUser(user);
         userService.commit();
-        return user;
+        return AdminDTOMapper.toUserDTO(user);
     }
 
     @DELETE
@@ -571,5 +392,8 @@ public class AdminResource {
             userService.commit();
         }
     }
+
+    // ...existing code...
 }
+
 

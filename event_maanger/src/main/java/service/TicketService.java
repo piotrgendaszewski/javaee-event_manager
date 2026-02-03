@@ -67,4 +67,26 @@ public class TicketService {
     public java.util.Map<String, Integer> getRemainingTicketsByEvent(int eventId) {
         return ticketDAO.getRemainingTicketsByEvent(eventId);
     }
+
+    /**
+     * Get user tickets with minimal event data (no nested collections)
+     * Used for reducing response payload size
+     */
+    public List<Ticket> getTicketsByUserMinimal(int userId) {
+        List<Ticket> tickets = ticketDAO.getTicketsByUserId(userId);
+
+        // Clear nested collections to reduce payload
+        for (Ticket ticket : tickets) {
+            if (ticket.getEvent() != null) {
+                // Keep only basic event data, clear expensive collections
+                ticket.getEvent().setTickets(null);
+                ticket.getEvent().setLocations(null);
+                ticket.getEvent().setRooms(null);
+                ticket.getEvent().setTicketPrices(null);
+                ticket.getEvent().setTicketQuantities(null);
+            }
+        }
+
+        return tickets;
+    }
 }
