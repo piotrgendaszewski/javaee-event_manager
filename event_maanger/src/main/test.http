@@ -26,8 +26,8 @@ POST http://localhost:8080/event_maanger_war_exploded/api/auth/register
 Content-Type: application/json
 
 {
-  "login": "newuser3",
-  "password": "password123",
+  "login": "user",
+  "password": "password",
   "email": "newuser@example.com",
   "firstName": "John",
   "lastName": "Doe",
@@ -114,7 +114,7 @@ Content-Type: application/json
 }
 
 ### Test 18: Update user (admin)
-PUT http://localhost:8080/event_maanger_war_exploded/api/admin/users/2
+PUT http://localhost:8080/event_maanger_war_exploded/api/admin/users/13
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
 Content-Type: application/json
 
@@ -193,7 +193,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwia
 Content-Type: application/json
 
 {
-  "name": "Convention Center",
+  "name": "Convention Center 2",
   "address": "123 Convention Blvd",
   "maxAvailableSeats": 5000
 }
@@ -256,37 +256,42 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwia
 
 ### Test 35: Get user's tickets (authenticated user)
 GET http://localhost:8080/event_maanger_war_exploded/api/private/tickets
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
 Accept: application/json
 
 ### Test 36: Get user's tickets with filters (authenticated user)
-GET http://localhost:8080/event_maanger_war_exploded/api/private/tickets/search?validOnly=true
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+GET http://localhost:8080/event_maanger_war_exploded/api/private/tickets/search?validOnly=false
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
 Accept: application/json
 
 ### Test 37: Get specific ticket details (authenticated user)
 GET http://localhost:8080/event_maanger_war_exploded/api/private/tickets/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
+Accept: application/json
+
+### Test 37b: Get specific ticket details (authenticated user, wrong ticket ID) - should fail
+GET http://localhost:8080/event_maanger_war_exploded/api/private/tickets/4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
 Accept: application/json
 
 ### Test 38: Get user's locations (authenticated user)
 GET http://localhost:8080/event_maanger_war_exploded/api/private/locations
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
 Accept: application/json
 
 ### Test 39: Get specific location details (authenticated user)
 GET http://localhost:8080/event_maanger_war_exploded/api/private/locations/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
 Accept: application/json
 
 ### Test 40: Get user's reviews (authenticated user)
 GET http://localhost:8080/event_maanger_war_exploded/api/private/reviews
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
 Accept: application/json
 
 ### Test 41: Create review (authenticated user)
 POST http://localhost:8080/event_maanger_war_exploded/api/private/reviews
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
 Content-Type: application/json
 
 {
@@ -298,7 +303,7 @@ Content-Type: application/json
 
 ### Test 42: Update review (authenticated user)
 PUT http://localhost:8080/event_maanger_war_exploded/api/private/reviews/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
 Content-Type: application/json
 
 {
@@ -309,7 +314,7 @@ Content-Type: application/json
 
 ### Test 43: Delete review (authenticated user)
 DELETE http://localhost:8080/event_maanger_war_exploded/api/private/reviews/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
 
 // ==================== ERROR CASES & VALIDATION TESTS ====================
 

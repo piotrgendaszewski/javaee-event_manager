@@ -225,15 +225,20 @@ public class AuthenticatedUserResource {
             throw new BadRequestException("You have already reviewed this event");
         }
 
-        EventReview newReview = eventReviewService.addReview(
-                eventId,
-                userId,
-                review.getRating(),
-                review.getReviewText(),
-                review.getReviewDate()
-        );
+        try {
+            EventReview newReview = eventReviewService.addReview(
+                    eventId,
+                    userId,
+                    review.getRating(),
+                    review.getReviewText(),
+                    review.getReviewDate()
+            );
 
-        return PrivateDTOMapper.toReviewDTO(newReview);
+            return PrivateDTOMapper.toReviewDTO(newReview);
+        } catch (Exception e) {
+            SQLErrorHandler.handleSQLException(e, "create review");
+            return null; // Will not reach due to exception
+        }
     }
 
     /**

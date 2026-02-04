@@ -75,26 +75,31 @@ public class AdminResource {
         if (event.getName() == null || event.getName().trim().isEmpty()) {
             throw new BadRequestException("Event name is required");
         }
-        Event newEvent = eventService.addEvent(
-                event.getName(),
-                event.getDescription(),
-                event.getEventDate(),
-                event.getEventTime(),
-                event.getEventStartDate(),
-                event.getEventEndDate(),
-                event.isNumberedSeats()
-        );
-        if (event.getTicketPrices() != null) {
-            for (java.util.Map.Entry<String, Double> entry : event.getTicketPrices().entrySet()) {
-                eventService.setTicketPrice(newEvent.getId(), entry.getKey(), entry.getValue());
+        try {
+            Event newEvent = eventService.addEvent(
+                    event.getName(),
+                    event.getDescription(),
+                    event.getEventDate(),
+                    event.getEventTime(),
+                    event.getEventStartDate(),
+                    event.getEventEndDate(),
+                    event.isNumberedSeats()
+            );
+            if (event.getTicketPrices() != null) {
+                for (java.util.Map.Entry<String, Double> entry : event.getTicketPrices().entrySet()) {
+                    eventService.setTicketPrice(newEvent.getId(), entry.getKey(), entry.getValue());
+                }
             }
-        }
-        if (event.getTicketQuantities() != null) {
-            for (java.util.Map.Entry<String, Integer> entry : event.getTicketQuantities().entrySet()) {
-                eventService.setTicketQuantity(newEvent.getId(), entry.getKey(), entry.getValue());
+            if (event.getTicketQuantities() != null) {
+                for (java.util.Map.Entry<String, Integer> entry : event.getTicketQuantities().entrySet()) {
+                    eventService.setTicketQuantity(newEvent.getId(), entry.getKey(), entry.getValue());
+                }
             }
+            return AdminDTOMapper.toEventDTO(newEvent);
+        } catch (Exception e) {
+            SQLErrorHandler.handleSQLException(e, "create event");
+            return null; // Will not reach due to exception
         }
-        return AdminDTOMapper.toEventDTO(newEvent);
     }
 
     @PUT
@@ -155,10 +160,15 @@ public class AdminResource {
         if (location.getMaxAvailableSeats() <= 0) {
             throw new BadRequestException("Location max available seats must be greater than 0");
         }
-        Location newLocation = locationService.addLocation(location.getName(), location.getAddress());
-        newLocation.setMaxAvailableSeats(location.getMaxAvailableSeats());
-        locationService.updateLocation(newLocation);
-        return AdminDTOMapper.toLocationDTO(newLocation);
+        try {
+            Location newLocation = locationService.addLocation(location.getName(), location.getAddress());
+            newLocation.setMaxAvailableSeats(location.getMaxAvailableSeats());
+            locationService.updateLocation(newLocation);
+            return AdminDTOMapper.toLocationDTO(newLocation);
+        } catch (Exception e) {
+            SQLErrorHandler.handleSQLException(e, "create location");
+            return null; // Will not reach due to exception
+        }
     }
 
     @PUT
@@ -236,11 +246,16 @@ public class AdminResource {
             }
         }
 
-        Room newRoom = roomService.addRoom(room.getName(), room.getDescription());
-        newRoom.setLocation(room.getLocation());
-        newRoom.setSeatCapacity(room.getSeatCapacity());
-        roomService.updateRoom(newRoom);
-        return AdminDTOMapper.toRoomDTO(newRoom);
+        try {
+            Room newRoom = roomService.addRoom(room.getName(), room.getDescription());
+            newRoom.setLocation(room.getLocation());
+            newRoom.setSeatCapacity(room.getSeatCapacity());
+            roomService.updateRoom(newRoom);
+            return AdminDTOMapper.toRoomDTO(newRoom);
+        } catch (Exception e) {
+            SQLErrorHandler.handleSQLException(e, "create room");
+            return null; // Will not reach due to exception
+        }
     }
 
     @PUT
@@ -319,6 +334,9 @@ public class AdminResource {
             return AdminDTOMapper.toUserDTO(newUser);
         } catch (IllegalArgumentException e) {
             throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            SQLErrorHandler.handleSQLException(e, "create user");
+            return null; // Will not reach due to exception
         }
     }
 
@@ -352,6 +370,9 @@ public class AdminResource {
             return AdminDTOMapper.toUserDTO(newAdmin);
         } catch (IllegalArgumentException e) {
             throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            SQLErrorHandler.handleSQLException(e, "create admin user");
+            return null; // Will not reach due to exception
         }
     }
 

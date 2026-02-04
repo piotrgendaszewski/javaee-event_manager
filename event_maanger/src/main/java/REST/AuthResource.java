@@ -68,8 +68,16 @@ public class AuthResource {
             return Response.status(Response.Status.CONFLICT)
                     .entity(errorResponse(e.getMessage()))
                     .build();
+        } catch (WebApplicationException e) {
+            // Re-throw WebApplicationException from SQLErrorHandler
+            throw e;
         } catch (Exception e) {
-            e.printStackTrace();
+            // Try to handle as SQL error
+            try {
+                SQLErrorHandler.handleSQLException(e, "register user");
+            } catch (WebApplicationException sqlEx) {
+                throw sqlEx;
+            }
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(errorResponse("Registration failed: " + e.getMessage()))
                     .build();
