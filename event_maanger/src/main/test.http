@@ -1,4 +1,8 @@
-### GET request to example server
+// ==================== AUTHENTICATION TESTS ====================
+
+### Note: Tests that modify the DB are destructive — back up `data/event_manager.sqlite` before running.
+
+### Test 1: Login with valid credentials (admin)
 POST http://localhost:8080/event_maanger_war_exploded/api/auth/login
 Content-Type: application/json
 
@@ -7,10 +11,348 @@ Content-Type: application/json
   "password": "admin"
 }
 
-###
+### Test 2: Login with invalid credentials
+POST http://localhost:8080/event_maanger_war_exploded/api/auth/login
+Content-Type: application/json
 
+{
+  "login": "invalid_user",
+  "password": "wrong_password"
+}
+
+### Test 3: Register new user (DESCTRUCTIVE - will modify DB)
+# Backup DB first: copy data/event_manager.sqlite data/event_manager.sqlite.bak
+POST http://localhost:8080/event_maanger_war_exploded/api/auth/register
+Content-Type: application/json
+
+{
+  "login": "newuser",
+  "password": "password123",
+  "email": "newuser@example.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "phoneNumber": "123456789",
+  "address": "123 Main St"
+}
+
+### Test 4: Register with missing email (should fail)
+POST http://localhost:8080/event_maanger_war_exploded/api/auth/register
+Content-Type: application/json
+
+{
+  "login": "anotheruser",
+  "password": "pass123"
+}
+
+### Test 5: Register with duplicate login (should fail)
+POST http://localhost:8080/event_maanger_war_exploded/api/auth/register
+Content-Type: application/json
+
+{
+  "login": "admin",
+  "password": "password123",
+  "email": "admin2@example.com",
+  "firstName": "Admin2",
+  "lastName": "User",
+  "phoneNumber": "987654321",
+  "address": "456 Oak St"
+}
+
+
+
+### Test 6: Get all events (public)
+GET http://localhost:8080/event_maanger_war_exploded/api/public/events
+Accept: application/json
+
+### Test 7: Get event by ID (public)
+GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1
+Accept: application/json
+
+
+### Test 9: Search events with filters (public)
+GET http://localhost:8080/event_maanger_war_exploded/api/public/events/search?eventName=Jazz Festival
+Accept: application/json
+
+### Test 10: Get average rating for event (public)
+GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1/average-rating
+Accept: application/json
+
+### Test 11: Get remaining tickets for event (public)
+GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1/tickets/remaining
+Accept: application/json
+
+### Test 12: Get reviews for event (public)
+GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1/reviews
+Accept: application/json
+
+### Test 13: Get reviews with filters (public)
+GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1/reviews/search?minRating=4&maxRating=5&sortBy=rating&sortOrder=desc
+Accept: application/json
+
+
+### Test 15: Get all users (admin) - with token
+GET http://localhost:8080/event_maanger_war_exploded/api/admin/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 16: Get user by ID (admin)
 GET http://localhost:8080/event_maanger_war_exploded/api/admin/users/2
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
 
+### Test 17: Create admin user with password (admin)
+POST http://localhost:8080/event_maanger_war_exploded/api/admin/users/create-admin
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Content-Type: application/json
 
+{
+  "login": "newadmin",
+  "email": "newadmin@example.com",
+  "passwordHash": "newadmin123",
+  "firstName": "New",
+  "lastName": "Admin"
+}
+
+### Test 18: Update user (admin)
+PUT http://localhost:8080/event_maanger_war_exploded/api/admin/users/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Content-Type: application/json
+
+{
+  "firstName": "Updated",
+  "lastName": "User",
+  "email": "updated@example.com"
+}
+
+### Test 19: Delete user (admin)
+DELETE http://localhost:8080/event_maanger_war_exploded/api/admin/users/13
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+
+// ===== ADMIN EVENTS ENDPOINTS =====
+
+### Test 20: Get all events (admin)
+GET http://localhost:8080/event_maanger_war_exploded/api/admin/events
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 21: Get event by ID (admin)
+GET http://localhost:8080/event_maanger_war_exploded/api/admin/events/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 22: Create event (admin)
+POST http://localhost:8080/event_maanger_war_exploded/api/admin/events
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Content-Type: application/json
+
+{
+  "name": "New Conference 2027",
+  "description": "Annual tech conference",
+  "eventDate": "2026-06-15",
+  "eventTime": "09:00",
+  "eventStartDate": "2026-06-15",
+  "eventEndDate": "2026-06-17",
+  "numberedSeats": false,
+  "ticketPrices": {"Standard": 99.99, "VIP": 199.99},
+  "ticketQuantities": {"Standard": 300, "VIP": 50}
+}
+
+### Test 23: Update event (admin)
+PUT http://localhost:8080/event_maanger_war_exploded/api/admin/events/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Content-Type: application/json
+
+{
+  "name": "Updated Conference 2026",
+  "description": "Annual tech conference - Updated",
+  "eventDate": "2026-06-20",
+  "eventTime": "09:00",
+  "eventStartDate": "2026-06-20",
+  "eventEndDate": "2026-06-22"
+}
+
+### Test 24: Delete event (admin)
+DELETE http://localhost:8080/event_maanger_war_exploded/api/admin/events/5
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+
+// ===== ADMIN LOCATIONS ENDPOINTS =====
+
+### Test 25: Get all locations (admin)
+GET http://localhost:8080/event_maanger_war_exploded/api/admin/locations
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 26: Get location by ID (admin)
+GET http://localhost:8080/event_maanger_war_exploded/api/admin/locations/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 27: Create location (admin)
+POST http://localhost:8080/event_maanger_war_exploded/api/admin/locations
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Content-Type: application/json
+
+{
+  "name": "Convention Center",
+  "address": "123 Convention Blvd",
+  "maxAvailableSeats": 5000
+}
+
+### Test 28: Update location (admin)
+PUT http://localhost:8080/event_maanger_war_exploded/api/admin/locations/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Content-Type: application/json
+
+{
+  "name": "Updated Convention Center",
+  "address": "456 New Convention Ave",
+  "maxAvailableSeats": 6000
+}
+
+### Test 29: Delete location (admin)
+DELETE http://localhost:8080/event_maanger_war_exploded/api/admin/locations/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+
+// ===== ADMIN ROOMS ENDPOINTS =====
+
+### Test 30: Get all rooms (admin)
+GET http://localhost:8080/event_maanger_war_exploded/api/admin/rooms
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 31: Get room by ID (admin)
+GET http://localhost:8080/event_maanger_war_exploded/api/admin/rooms/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 32: Create room (admin)
+POST http://localhost:8080/event_maanger_war_exploded/api/admin/rooms
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Content-Type: application/json
+
+{
+  "name": "Main Hall",
+  "description": "Large conference hall",
+  "seatCapacity": 500,
+  "location": {"id": 1}
+}
+
+### Test 33: Update room (admin)
+PUT http://localhost:8080/event_maanger_war_exploded/api/admin/rooms/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Content-Type: application/json
+
+{
+  "name": "Updated Main Hall",
+  "description": "Large conference hall - updated capacity",
+  "seatCapacity": 600
+}
+
+### Test 34: Delete room (admin)
+DELETE http://localhost:8080/event_maanger_war_exploded/api/admin/rooms/4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+
+// ==================== AUTHENTICATED USER ENDPOINTS TESTS ====================
+
+### Test 35: Get user's tickets (authenticated user)
+GET http://localhost:8080/event_maanger_war_exploded/api/private/tickets
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 36: Get user's tickets with filters (authenticated user)
+GET http://localhost:8080/event_maanger_war_exploded/api/private/tickets/search?validOnly=true
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 37: Get specific ticket details (authenticated user)
+GET http://localhost:8080/event_maanger_war_exploded/api/private/tickets/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 38: Get user's locations (authenticated user)
+GET http://localhost:8080/event_maanger_war_exploded/api/private/locations
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 39: Get specific location details (authenticated user)
+GET http://localhost:8080/event_maanger_war_exploded/api/private/locations/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 40: Get user's reviews (authenticated user)
+GET http://localhost:8080/event_maanger_war_exploded/api/private/reviews
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 41: Create review (authenticated user)
+POST http://localhost:8080/event_maanger_war_exploded/api/private/reviews
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Content-Type: application/json
+
+{
+  "event": {"id": 1},
+  "rating": 5,
+  "reviewText": "Amazing event, highly recommended!",
+  "reviewDate": "2026-02-04"
+}
+
+### Test 42: Update review (authenticated user)
+PUT http://localhost:8080/event_maanger_war_exploded/api/private/reviews/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Content-Type: application/json
+
+{
+  "rating": 4,
+  "reviewText": "Good event, but could improve the logistics",
+  "reviewDate": "2026-02-04"
+}
+
+### Test 43: Delete review (authenticated user)
+DELETE http://localhost:8080/event_maanger_war_exploded/api/private/reviews/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+
+// ==================== ERROR CASES & VALIDATION TESTS ====================
+
+### Test 44: Access admin endpoint without token (should fail)
+GET http://localhost:8080/event_maanger_war_exploded/api/admin/events
+Accept: application/json
+
+### Test 45: Access endpoint with invalid token (should fail)
+GET http://localhost:8080/event_maanger_war_exploded/api/admin/events
+Authorization: Bearer invalid_token_here
+Accept: application/json
+
+### Test 46: Invalid event ID (should fail)
+GET http://localhost:8080/event_maanger_war_exploded/api/public/events/99999
+Accept: application/json
+
+### Test 47: Create event with missing required field (should fail)
+POST http://localhost:8080/event_maanger_war_exploded/api/admin/events
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Content-Type: application/json
+
+{
+  "description": "Missing name field",
+  "eventDate": "2026-06-15"
+}
+
+### Test 48: Create review with invalid rating (should fail)
+POST http://localhost:8080/event_maanger_war_exploded/api/public/events/1/reviews
+Content-Type: application/json
+
+{
+  "rating": 10,
+  "comment": "Invalid rating - out of range",
+  "reviewDate": "2026-02-04"
+}
+
+### Test 49: Invalid location ID (should fail)
+GET http://localhost:8080/event_maanger_war_exploded/api/admin/locations/99999
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
+
+### Test 50: Invalid room ID (should fail)
+GET http://localhost:8080/event_maanger_war_exploded/api/admin/rooms/99999
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
+Accept: application/json
 
