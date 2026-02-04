@@ -17,10 +17,6 @@ public class TicketHibernate implements TicketDAO {
         // No-arg constructor - SessionFactory is shared via singleton
     }
 
-    private Session getSession() {
-        return HibernateSessionFactory.getSessionFactory().openSession();
-    }
-
     @Override
     public void commit() {
         // No-op: transactions are handled per-operation
@@ -33,11 +29,11 @@ public class TicketHibernate implements TicketDAO {
 
     @Override
     public Ticket addTicket(int eventId, int userId, String ticketType, double price, String purchaseDate, String validFromDate, String validToDate) {
-        Session session = getSession();
-        Transaction transaction = null;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            transaction = session.beginTransaction();
             Event event = session.get(Event.class, eventId);
             User user = session.get(User.class, userId);
 
@@ -47,140 +43,122 @@ public class TicketHibernate implements TicketDAO {
                 ticket.setValidFromDate(validFromDate);
                 ticket.setValidToDate(validToDate);
                 session.persist(ticket);
-                transaction.commit();
+                if (!isManaged && transaction.isActive()) {
+                    transaction.commit();
+                }
                 return ticket;
             }
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.commit();
             }
             return null;
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error adding ticket: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (!isManaged && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public Ticket getTicketById(int id) {
-        Session session = getSession();
-
-        try {
-            return session.get(Ticket.class, id);
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        return session.get(Ticket.class, id);
     }
 
     @Override
     public void updateTicket(Ticket ticket) {
-        Session session = getSession();
-        Transaction transaction = null;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            transaction = session.beginTransaction();
             session.merge(ticket);
-            transaction.commit();
+            if (!isManaged && transaction.isActive()) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error updating ticket: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (!isManaged && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public void deleteTicket(Ticket ticket) {
-        Session session = getSession();
-        Transaction transaction = null;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            transaction = session.beginTransaction();
             session.remove(session.merge(ticket));
-            transaction.commit();
+            if (!isManaged && transaction.isActive()) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error deleting ticket: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (!isManaged && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public List<Ticket> getAllTickets() {
-        Session session = getSession();
-
-        try {
-            String query = "FROM Ticket";
-            return session.createQuery(query, Ticket.class).list();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "FROM Ticket";
+        return session.createQuery(query, Ticket.class).list();
     }
 
     @Override
     public List<Ticket> getTicketsByEventId(int eventId) {
-        Session session = getSession();
-
-        try {
-            String query = "FROM Ticket WHERE event.id = :eventId";
-            return session.createQuery(query, Ticket.class)
-                    .setParameter("eventId", eventId)
-                    .list();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "FROM Ticket WHERE event.id = :eventId";
+        return session.createQuery(query, Ticket.class)
+                .setParameter("eventId", eventId)
+                .list();
     }
 
     @Override
     public List<Ticket> getTicketsByUserId(int userId) {
-        Session session = getSession();
-
-        try {
-            String query = "FROM Ticket WHERE user.id = :userId";
-            return session.createQuery(query, Ticket.class)
-                    .setParameter("userId", userId)
-                    .list();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "FROM Ticket WHERE user.id = :userId";
+        return session.createQuery(query, Ticket.class)
+                .setParameter("userId", userId)
+                .list();
     }
 
     @Override
     public int countTicketsByEventAndType(int eventId, String ticketType) {
-        Session session = getSession();
-
-        try {
-            String query = "SELECT COUNT(*) FROM Ticket WHERE event.id = :eventId AND ticketType = :ticketType";
-            return Math.toIntExact(session.createQuery(query, Long.class)
-                    .setParameter("eventId", eventId)
-                    .setParameter("ticketType", ticketType)
-                    .getSingleResult());
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "SELECT COUNT(*) FROM Ticket WHERE event.id = :eventId AND ticketType = :ticketType";
+        return Math.toIntExact(session.createQuery(query, Long.class)
+                .setParameter("eventId", eventId)
+                .setParameter("ticketType", ticketType)
+                .getSingleResult());
     }
 
     @Override
     public Ticket getTicketByEventAndSeat(int eventId, String seatNumber) {
-        Session session = getSession();
-
-        try {
-            String query = "FROM Ticket WHERE event.id = :eventId AND seatNumber = :seatNumber";
-            return session.createQuery(query, Ticket.class)
-                    .setParameter("eventId", eventId)
-                    .setParameter("seatNumber", seatNumber)
-                    .uniqueResult();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "FROM Ticket WHERE event.id = :eventId AND seatNumber = :seatNumber";
+        return session.createQuery(query, Ticket.class)
+                .setParameter("eventId", eventId)
+                .setParameter("seatNumber", seatNumber)
+                .uniqueResult();
     }
 
     @Override
@@ -190,43 +168,33 @@ public class TicketHibernate implements TicketDAO {
 
     @Override
     public List<User> getUsersByEventId(int eventId) {
-        Session session = getSession();
-
-        try {
-            String query = "SELECT DISTINCT t.user FROM Ticket t WHERE t.event.id = :eventId";
-            return session.createQuery(query, User.class)
-                    .setParameter("eventId", eventId)
-                    .list();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "SELECT DISTINCT t.user FROM Ticket t WHERE t.event.id = :eventId";
+        return session.createQuery(query, User.class)
+                .setParameter("eventId", eventId)
+                .list();
     }
 
     @Override
     public Map<String, Integer> getRemainingTicketsByEvent(int eventId) {
-        Session session = getSession();
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Event event = session.get(Event.class, eventId);
+        Map<String, Integer> remaining = new HashMap<>();
+        if (event == null) return remaining;
 
-        try {
-            Event event = session.get(Event.class, eventId);
-            Map<String, Integer> remaining = new HashMap<>();
-            if (event == null) return remaining;
-
-            if (event.getTicketQuantities() != null) {
-                for (Map.Entry<String, Integer> entry : event.getTicketQuantities().entrySet()) {
-                    String type = entry.getKey();
-                    Integer total = entry.getValue() != null ? entry.getValue() : 0;
-                    // count sold
-                    String countQuery = "SELECT COUNT(*) FROM Ticket WHERE event.id = :eventId AND ticketType = :type";
-                    Integer sold = Math.toIntExact(session.createQuery(countQuery, Long.class)
-                            .setParameter("eventId", eventId)
-                            .setParameter("type", type)
-                            .getSingleResult());
-                    remaining.put(type, Math.max(0, total - sold));
-                }
+        if (event.getTicketQuantities() != null) {
+            for (Map.Entry<String, Integer> entry : event.getTicketQuantities().entrySet()) {
+                String type = entry.getKey();
+                Integer total = entry.getValue() != null ? entry.getValue() : 0;
+                // count sold
+                String countQuery = "SELECT COUNT(*) FROM Ticket WHERE event.id = :eventId AND ticketType = :type";
+                Integer sold = Math.toIntExact(session.createQuery(countQuery, Long.class)
+                        .setParameter("eventId", eventId)
+                        .setParameter("type", type)
+                        .getSingleResult());
+                remaining.put(type, Math.max(0, total - sold));
             }
-            return remaining;
-        } finally {
-            session.close();
         }
+        return remaining;
     }
 }

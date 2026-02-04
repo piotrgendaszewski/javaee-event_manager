@@ -15,10 +15,6 @@ public class EventReviewHibernate implements EventReviewDAO {
         // No-arg constructor - SessionFactory is shared via singleton
     }
 
-    private Session getSession() {
-        return HibernateSessionFactory.getSessionFactory().openSession();
-    }
-
     @Override
     public void commit() {
         // No-op: transactions are handled per-operation
@@ -31,136 +27,123 @@ public class EventReviewHibernate implements EventReviewDAO {
 
     @Override
     public EventReview addReview(int eventId, int userId, int rating, String reviewText, String reviewDate) {
-        Session session = getSession();
-        Transaction transaction = null;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            transaction = session.beginTransaction();
             Event event = session.get(Event.class, eventId);
             User user = session.get(User.class, userId);
 
             if (event != null && user != null) {
                 EventReview review = new EventReview(event, user, rating, reviewText, reviewDate);
                 session.persist(review);
-                transaction.commit();
+                if (!isManaged && transaction.isActive()) {
+                    transaction.commit();
+                }
                 return review;
             }
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.commit();
             }
             return null;
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error adding review: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (!isManaged && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public EventReview getReviewById(int id) {
-        Session session = getSession();
-
-        try {
-            return session.get(EventReview.class, id);
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        return session.get(EventReview.class, id);
     }
 
     @Override
     public void updateReview(EventReview review) {
-        Session session = getSession();
-        Transaction transaction = null;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            transaction = session.beginTransaction();
             session.merge(review);
-            transaction.commit();
+            if (!isManaged && transaction.isActive()) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error updating review: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (!isManaged && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public void deleteReview(EventReview review) {
-        Session session = getSession();
-        Transaction transaction = null;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            transaction = session.beginTransaction();
             session.remove(session.merge(review));
-            transaction.commit();
+            if (!isManaged && transaction.isActive()) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error deleting review: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (!isManaged && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public List<EventReview> getAllReviews() {
-        Session session = getSession();
-
-        try {
-            String query = "FROM EventReview";
-            return session.createQuery(query, EventReview.class).list();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "FROM EventReview";
+        return session.createQuery(query, EventReview.class).list();
     }
 
     @Override
     public List<EventReview> getReviewsByEventId(int eventId) {
-        Session session = getSession();
-
-        try {
-            String query = "FROM EventReview WHERE event.id = :eventId";
-            return session.createQuery(query, EventReview.class)
-                    .setParameter("eventId", eventId)
-                    .list();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "FROM EventReview WHERE event.id = :eventId";
+        return session.createQuery(query, EventReview.class)
+                .setParameter("eventId", eventId)
+                .list();
     }
 
     @Override
     public List<EventReview> getReviewsByUserId(int userId) {
-        Session session = getSession();
-
-        try {
-            String query = "FROM EventReview WHERE user.id = :userId";
-            return session.createQuery(query, EventReview.class)
-                    .setParameter("userId", userId)
-                    .list();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "FROM EventReview WHERE user.id = :userId";
+        return session.createQuery(query, EventReview.class)
+                .setParameter("userId", userId)
+                .list();
     }
 
     @Override
     public EventReview getReviewByEventAndUser(int eventId, int userId) {
-        Session session = getSession();
-
-        try {
-            String query = "FROM EventReview WHERE event.id = :eventId AND user.id = :userId";
-            return session.createQuery(query, EventReview.class)
-                    .setParameter("eventId", eventId)
-                    .setParameter("userId", userId)
-                    .uniqueResult();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "FROM EventReview WHERE event.id = :eventId AND user.id = :userId";
+        return session.createQuery(query, EventReview.class)
+                .setParameter("eventId", eventId)
+                .setParameter("userId", userId)
+                .uniqueResult();
     }
 
     @Override
@@ -170,17 +153,12 @@ public class EventReviewHibernate implements EventReviewDAO {
 
     @Override
     public double getAverageRatingForEvent(int eventId) {
-        Session session = getSession();
-
-        try {
-            String query = "SELECT AVG(rating) FROM EventReview WHERE event.id = :eventId";
-            Double result = session.createQuery(query, Double.class)
-                    .setParameter("eventId", eventId)
-                    .getSingleResult();
-            return result != null ? result : 0.0;
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "SELECT AVG(rating) FROM EventReview WHERE event.id = :eventId";
+        Double result = session.createQuery(query, Double.class)
+                .setParameter("eventId", eventId)
+                .getSingleResult();
+        return result != null ? result : 0.0;
     }
 }
 

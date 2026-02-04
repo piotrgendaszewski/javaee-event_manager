@@ -68,13 +68,6 @@ public class UserHibernate implements UserDAO {
         }
     }
 
-    /**
-     * Get a new session from the shared SessionFactory
-     */
-    private Session getSession() {
-        return HibernateSessionFactory.getSessionFactory().openSession();
-    }
-
     @Override
     public void commit() {
         // No-op: transactions are handled per-operation
@@ -87,97 +80,94 @@ public class UserHibernate implements UserDAO {
 
     @Override
     public User addUser(String login, String email) {
-        Session session = getSession();
-        Transaction transaction = null;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            transaction = session.beginTransaction();
             User user = new User(login, email);
             session.persist(user);
-            transaction.commit();
+            if (!isManaged && transaction.isActive()) {
+                transaction.commit();
+            }
             return user;
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error adding user: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (!isManaged && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public User getUserByLogin(String login) {
-        Session session = getSession();
-
-        try {
-            String query = "FROM User WHERE login = :login";
-            return session.createQuery(query, User.class)
-                    .setParameter("login", login)
-                    .uniqueResult();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "FROM User WHERE login = :login";
+        return session.createQuery(query, User.class)
+                .setParameter("login", login)
+                .uniqueResult();
     }
 
     @Override
     public void updateUser(User user) {
-        Session session = getSession();
-        Transaction transaction = null;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            transaction = session.beginTransaction();
             session.merge(user);
-            transaction.commit();
+            if (!isManaged && transaction.isActive()) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error updating user: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (!isManaged && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public void deleteUser(User user) {
-        Session session = getSession();
-        Transaction transaction = null;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            transaction = session.beginTransaction();
             session.remove(user);
-            transaction.commit();
+            if (!isManaged && transaction.isActive()) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error deleting user: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (!isManaged && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public List<User> getAllUsers() {
-        Session session = getSession();
-
-        try {
-            String query = "FROM User";
-            return session.createQuery(query, User.class).list();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "FROM User";
+        return session.createQuery(query, User.class).list();
     }
 
     @Override
     public User getUserById(int id) {
-        Session session = getSession();
-
-        try {
-            return session.get(User.class, id);
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        return session.get(User.class, id);
     }
 }

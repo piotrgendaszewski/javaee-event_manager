@@ -146,7 +146,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwia
 Content-Type: application/json
 
 {
-  "name": "New Conference 2027",
+  "name": "New Conference 2030",
   "description": "Annual tech conference",
   "eventDate": "2026-06-15",
   "eventTime": "09:00",

@@ -26,22 +26,23 @@ public class EventHibernate implements EventDAO {
     @Override
     public Event addEvent(String name, String description, String eventDate, String eventTime, String eventStartDate, String eventEndDate, boolean numberedSeats) {
         Session session = HibernateSessionHelper.getCurrentSession();
-        boolean isExternalSession = HibernateSessionHelper.isInHttpContext();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
             Event event = new Event(name, description, eventDate, eventTime, eventStartDate, eventEndDate, numberedSeats);
             session.persist(event);
-            if (!isExternalSession) {
-                session.getTransaction().commit();
+            if (!isManaged && transaction.isActive()) {
+                transaction.commit();
             }
             return event;
         } catch (Exception e) {
-            if (!isExternalSession && session.getTransaction().isActive()) {
-                session.getTransaction().rollback();
+            if (!isManaged && transaction.isActive()) {
+                transaction.rollback();
             }
             throw new RuntimeException("Error adding event: " + e.getMessage(), e);
         } finally {
-            if (!isExternalSession && session.isOpen()) {
+            if (!isManaged && session.isOpen()) {
                 session.close();
             }
         }
@@ -65,26 +66,21 @@ public class EventHibernate implements EventDAO {
     @Override
     public void updateEvent(Event event) {
         Session session = HibernateSessionHelper.getCurrentSession();
-        boolean isExternalSession = HibernateSessionHelper.isInHttpContext();
-        Transaction transaction = null;
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            if (isExternalSession) {
-                // Transaction already managed by filter
-                session.merge(event);
-            } else {
-                // Create new transaction for standalone operations
-                transaction = session.beginTransaction();
-                session.merge(event);
+            session.merge(event);
+            if (!isManaged && transaction.isActive()) {
                 transaction.commit();
             }
         } catch (Exception e) {
-            if (!isExternalSession && transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error updating event: " + e.getMessage(), e);
         } finally {
-            if (!isExternalSession && session.isOpen()) {
+            if (!isManaged && session.isOpen()) {
                 session.close();
             }
         }
@@ -93,26 +89,21 @@ public class EventHibernate implements EventDAO {
     @Override
     public void deleteEvent(Event event) {
         Session session = HibernateSessionHelper.getCurrentSession();
-        boolean isExternalSession = HibernateSessionHelper.isInHttpContext();
-        Transaction transaction = null;
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            if (isExternalSession) {
-                // Transaction already managed by filter
-                session.remove(session.merge(event));
-            } else {
-                // Create new transaction for standalone operations
-                transaction = session.beginTransaction();
-                session.remove(session.merge(event));
+            session.remove(session.merge(event));
+            if (!isManaged && transaction.isActive()) {
                 transaction.commit();
             }
         } catch (Exception e) {
-            if (!isExternalSession && transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error deleting event: " + e.getMessage(), e);
         } finally {
-            if (!isExternalSession && session.isOpen()) {
+            if (!isManaged && session.isOpen()) {
                 session.close();
             }
         }
@@ -128,32 +119,25 @@ public class EventHibernate implements EventDAO {
     @Override
     public void setTicketPrice(int eventId, String ticketType, double price) {
         Session session = HibernateSessionHelper.getCurrentSession();
-        boolean isExternalSession = HibernateSessionHelper.isInHttpContext();
-        Transaction transaction = null;
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            if (isExternalSession) {
-                Event event = session.get(Event.class, eventId);
-                if (event != null) {
-                    event.getTicketPrices().put(ticketType, price);
-                    session.merge(event);
-                }
-            } else {
-                transaction = session.beginTransaction();
-                Event event = session.get(Event.class, eventId);
-                if (event != null) {
-                    event.getTicketPrices().put(ticketType, price);
-                    session.merge(event);
-                }
+            Event event = session.get(Event.class, eventId);
+            if (event != null) {
+                event.getTicketPrices().put(ticketType, price);
+                session.merge(event);
+            }
+            if (!isManaged && transaction.isActive()) {
                 transaction.commit();
             }
         } catch (Exception e) {
-            if (!isExternalSession && transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error setting ticket price: " + e.getMessage(), e);
         } finally {
-            if (!isExternalSession && session.isOpen()) {
+            if (!isManaged && session.isOpen()) {
                 session.close();
             }
         }
@@ -162,32 +146,25 @@ public class EventHibernate implements EventDAO {
     @Override
     public void setTicketQuantity(int eventId, String ticketType, int quantity) {
         Session session = HibernateSessionHelper.getCurrentSession();
-        boolean isExternalSession = HibernateSessionHelper.isInHttpContext();
-        Transaction transaction = null;
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            if (isExternalSession) {
-                Event event = session.get(Event.class, eventId);
-                if (event != null) {
-                    event.getTicketQuantities().put(ticketType, quantity);
-                    session.merge(event);
-                }
-            } else {
-                transaction = session.beginTransaction();
-                Event event = session.get(Event.class, eventId);
-                if (event != null) {
-                    event.getTicketQuantities().put(ticketType, quantity);
-                    session.merge(event);
-                }
+            Event event = session.get(Event.class, eventId);
+            if (event != null) {
+                event.getTicketQuantities().put(ticketType, quantity);
+                session.merge(event);
+            }
+            if (!isManaged && transaction.isActive()) {
                 transaction.commit();
             }
         } catch (Exception e) {
-            if (!isExternalSession && transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error setting ticket quantity: " + e.getMessage(), e);
         } finally {
-            if (!isExternalSession && session.isOpen()) {
+            if (!isManaged && session.isOpen()) {
                 session.close();
             }
         }

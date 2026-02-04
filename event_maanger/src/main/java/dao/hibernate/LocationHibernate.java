@@ -14,10 +14,6 @@ public class LocationHibernate implements LocationDAO {
         // No-arg constructor - SessionFactory is shared via singleton
     }
 
-    private Session getSession() {
-        return HibernateSessionFactory.getSessionFactory().openSession();
-    }
-
     @Override
     public void commit() {
         // No-op: transactions are handled per-operation
@@ -30,113 +26,105 @@ public class LocationHibernate implements LocationDAO {
 
     @Override
     public Location addLocation(String name, String address) {
-        Session session = getSession();
-        Transaction transaction = null;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            transaction = session.beginTransaction();
             Location location = new Location();
             location.setName(name);
             location.setAddress(address);
             session.persist(location);
-            transaction.commit();
+            if (!isManaged && transaction.isActive()) {
+                transaction.commit();
+            }
             return location;
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error adding location: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (!isManaged && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public Location getLocationById(int id) {
-        Session session = getSession();
-
-        try {
-            return session.get(Location.class, id);
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        return session.get(Location.class, id);
     }
 
     @Override
     public Location getLocationByName(String name) {
-        Session session = getSession();
-
-        try {
-            String query = "FROM Location WHERE name = :name";
-            return session.createQuery(query, Location.class)
-                    .setParameter("name", name)
-                    .uniqueResult();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "FROM Location WHERE name = :name";
+        return session.createQuery(query, Location.class)
+                .setParameter("name", name)
+                .uniqueResult();
     }
 
     @Override
     public void updateLocation(Location location) {
-        Session session = getSession();
-        Transaction transaction = null;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            transaction = session.beginTransaction();
             session.merge(location);
-            transaction.commit();
+            if (!isManaged && transaction.isActive()) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error updating location: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (!isManaged && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public void deleteLocation(Location location) {
-        Session session = getSession();
-        Transaction transaction = null;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Transaction transaction = HibernateSessionHelper.getCurrentTransaction(session);
+        boolean isManaged = HibernateSessionHelper.isTransactionManagedByFilter();
 
         try {
-            transaction = session.beginTransaction();
             session.remove(session.merge(location));
-            transaction.commit();
+            if (!isManaged && transaction.isActive()) {
+                transaction.commit();
+            }
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (!isManaged && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new RuntimeException("Error deleting location: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (!isManaged && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public List<Location> getAllLocations() {
-        Session session = getSession();
-
-        try {
-            String query = "FROM Location";
-            return session.createQuery(query, Location.class).list();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "FROM Location";
+        return session.createQuery(query, Location.class).list();
     }
 
     @Override
     public List<User> getContactsByLocationId(int locationId) {
-        Session session = getSession();
-
-        try {
-            String query = "SELECT contacts FROM Location l JOIN l.contacts contacts WHERE l.id = :locationId";
-            return session.createQuery(query, User.class)
-                    .setParameter("locationId", locationId)
-                    .list();
-        } finally {
-            session.close();
-        }
+        Session session = HibernateSessionHelper.getCurrentSession();
+        String query = "SELECT contacts FROM Location l JOIN l.contacts contacts WHERE l.id = :locationId";
+        return session.createQuery(query, User.class)
+                .setParameter("locationId", locationId)
+                .list();
     }
 }
