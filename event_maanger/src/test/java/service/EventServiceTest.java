@@ -272,11 +272,6 @@ class EventServiceTest {
             Object quantity = ticketData.getOrDefault(key, new HashMap<>()).get("quantity");
             return quantity != null ? (int) quantity : 0;
         }
-
-        @Override
-        public double getAverageRatingForEvent(int eventId) {
-            return 0.0;
-        }
     }
 }
 

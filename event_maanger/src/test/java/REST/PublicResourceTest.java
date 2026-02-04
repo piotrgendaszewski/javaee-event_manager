@@ -179,35 +179,6 @@ class PublicResourceTest extends JerseyTest {
         });
     }
 
-    // ==================== REVIEWS ENDPOINTS TESTS ====================
-
-    @Test
-    @DisplayName("Should map GET /public/events/{eventId}/reviews endpoint")
-    void testGetEventReviewsEndpointExists() {
-        safeTest("testGetEventReviewsEndpointExists", () -> {
-            Response response = target("/public/events/1/reviews")
-                    .request(MediaType.APPLICATION_JSON)
-                    .get();
-
-            assertNotNull(response.getStatus(), "Endpoint should exist");
-        });
-    }
-
-    @Test
-    @DisplayName("Should return JSON array for event reviews")
-    void testGetEventReviewsReturnsJson() {
-        safeTest("testGetEventReviewsReturnsJson", () -> {
-            Response response = target("/public/events/1/reviews")
-                    .request(MediaType.APPLICATION_JSON)
-                    .get();
-
-            if (response.getStatus() == 200) {
-                String contentType = response.getHeaderString("Content-Type");
-                assertTrue(contentType != null && contentType.contains("application/json"),
-                        "Response should be JSON");
-            }
-        });
-    }
 
     // ==================== SEARCH QUERY PARAMETER TESTS ====================
 

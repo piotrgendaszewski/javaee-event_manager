@@ -26,7 +26,6 @@
         <mapping class="model.User"/>
         <mapping class="model.Event"/>
         <mapping class="model.Ticket"/>
-        <mapping class="model.EventReview"/>
     </session-factory>
 </hibernate-configuration>
 

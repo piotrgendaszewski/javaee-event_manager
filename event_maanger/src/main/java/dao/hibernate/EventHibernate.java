@@ -189,15 +189,5 @@ public class EventHibernate implements EventDAO {
         }
         return 0;
     }
-
-    @Override
-    public double getAverageRatingForEvent(int eventId) {
-        Session session = HibernateSessionHelper.getCurrentSession();
-        String query = "SELECT AVG(rating) FROM EventReview WHERE event.id = :eventId";
-        Double result = session.createQuery(query, Double.class)
-                .setParameter("eventId", eventId)
-                .getSingleResult();
-        return result != null ? result : 0.0;
-    }
 }
 

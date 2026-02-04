@@ -1,7 +1,6 @@
 package dao.hibernate;
 
 import model.Event;
-import model.EventReview;
 import model.Location;
 import model.Room;
 import model.Ticket;
@@ -41,7 +40,6 @@ public class HibernateSessionFactory {
                                 .addAnnotatedClass(Room.class)
                                 .addAnnotatedClass(Event.class)
                                 .addAnnotatedClass(Ticket.class)
-                                .addAnnotatedClass(EventReview.class)
                                 .buildSessionFactory();
                     } catch (Exception e) {
                         System.err.println("Error creating Hibernate SessionFactory: " + e.getMessage());

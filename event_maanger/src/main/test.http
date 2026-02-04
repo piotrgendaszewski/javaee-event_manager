@@ -73,24 +73,12 @@ Accept: application/json
 GET http://localhost:8080/event_maanger_war_exploded/api/public/events/search?eventName=Jazz Festival
 Accept: application/json
 
-### Test 10: Get average rating for event (public)
-GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1/average-rating
-Accept: application/json
 
 ### Test 11: Get remaining tickets for event (public)
-GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1/tickets/remaining
+GET http://localhost:8080/event_maanger_war_exploded/api/public/events/2/tickets/remaining
 Accept: application/json
 
-### Test 12: Get reviews for event (public) - Returns EventReviewPublicDTO (no sensitive user data)
-GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1/reviews
-Accept: application/json
-
-### Test 13: Get reviews with filters (public) - Returns list of EventReviewPublicDTO
-GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1/reviews/search?minRating=4&maxRating=5&sortBy=rating&sortOrder=desc
-Accept: application/json
-
-
-### Test 15: Get all users (admin) - with token
+### Test 12: Get all users (admin) - with token
 GET http://localhost:8080/event_maanger_war_exploded/api/admin/users
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
 Accept: application/json
@@ -106,7 +94,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwia
 Content-Type: application/json
 
 {
-  "login": "newadmin",
+  "login": "newadmin3",
   "email": "newadmin@example.com",
   "passwordHash": "newadmin123",
   "firstName": "New",
@@ -114,7 +102,7 @@ Content-Type: application/json
 }
 
 ### Test 18: Update user (admin)
-PUT http://localhost:8080/event_maanger_war_exploded/api/admin/users/13
+PUT http://localhost:8080/event_maanger_war_exploded/api/admin/users/12
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
 Content-Type: application/json
 
@@ -146,7 +134,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwia
 Content-Type: application/json
 
 {
-  "name": "New Conference 2030",
+  "name": "New Conference 2035",
   "description": "Annual tech conference",
   "eventDate": "2026-06-15",
   "eventTime": "09:00",
@@ -199,7 +187,7 @@ Content-Type: application/json
 }
 
 ### Test 28: Update location (admin)
-PUT http://localhost:8080/event_maanger_war_exploded/api/admin/locations/1
+PUT http://localhost:8080/event_maanger_war_exploded/api/admin/locations/3
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
 Content-Type: application/json
 
@@ -284,54 +272,22 @@ GET http://localhost:8080/event_maanger_war_exploded/api/private/locations/1
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
 Accept: application/json
 
-### Test 40: Get user's reviews (authenticated user)
-GET http://localhost:8080/event_maanger_war_exploded/api/private/reviews
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
-Accept: application/json
-
-### Test 41: Create review (authenticated user)
-POST http://localhost:8080/event_maanger_war_exploded/api/private/reviews
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
-Content-Type: application/json
-
-{
-  "event": {"id": 1},
-  "rating": 5,
-  "reviewText": "Amazing event, highly recommended!",
-  "reviewDate": "2026-02-04"
-}
-
-### Test 42: Update review (authenticated user)
-PUT http://localhost:8080/event_maanger_war_exploded/api/private/reviews/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
-Content-Type: application/json
-
-{
-  "rating": 4,
-  "reviewText": "Good event, but could improve the logistics",
-  "reviewDate": "2026-02-04"
-}
-
-### Test 43: Delete review (authenticated user)
-DELETE http://localhost:8080/event_maanger_war_exploded/api/private/reviews/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwidXNlcklkIjoyLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzcwMjMyMzkzLCJleHAiOjE3NzAzMTg3OTN9.kSHJy6WmFtPqPruv69gkCt-8pzCGtB6wQIBEOj-icGE
-
 // ==================== ERROR CASES & VALIDATION TESTS ====================
 
-### Test 44: Access admin endpoint without token (should fail)
+### Test 40: Access admin endpoint without token (should fail)
 GET http://localhost:8080/event_maanger_war_exploded/api/admin/events
 Accept: application/json
 
-### Test 45: Access endpoint with invalid token (should fail)
+### Test 41: Access endpoint with invalid token (should fail)
 GET http://localhost:8080/event_maanger_war_exploded/api/admin/events
 Authorization: Bearer invalid_token_here
 Accept: application/json
 
-### Test 46: Invalid event ID (should fail)
+### Test 42: Invalid event ID (should fail)
 GET http://localhost:8080/event_maanger_war_exploded/api/public/events/99999
 Accept: application/json
 
-### Test 47: Create event with missing required field (should fail)
+### Test 43: Create event with missing required field (should fail)
 POST http://localhost:8080/event_maanger_war_exploded/api/admin/events
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
 Content-Type: application/json
@@ -341,22 +297,12 @@ Content-Type: application/json
   "eventDate": "2026-06-15"
 }
 
-### Test 48: Create review with invalid rating (should fail)
-POST http://localhost:8080/event_maanger_war_exploded/api/public/events/1/reviews
-Content-Type: application/json
-
-{
-  "rating": 10,
-  "comment": "Invalid rating - out of range",
-  "reviewDate": "2026-02-04"
-}
-
-### Test 49: Invalid location ID (should fail)
+### Test 44: Invalid location ID (should fail)
 GET http://localhost:8080/event_maanger_war_exploded/api/admin/locations/99999
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
 Accept: application/json
 
-### Test 50: Invalid room ID (should fail)
+### Test 45: Invalid room ID (should fail)
 GET http://localhost:8080/event_maanger_war_exploded/api/admin/rooms/99999
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzcwMjA1MjMyLCJleHAiOjE3NzAyOTE2MzJ9.8iLV_SSJI02ztoCfxyArkXXa7gFI2AW2XSC7HitfliU
 Accept: application/json

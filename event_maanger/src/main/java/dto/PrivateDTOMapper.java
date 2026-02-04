@@ -1,9 +1,5 @@
-package service;
+package dto;
 
-import dto.EventReviewDTO;
-import dto.LocationPrivateDTO;
-import dto.TicketPrivateDTO;
-import model.EventReview;
 import model.Location;
 import model.Ticket;
 
@@ -65,34 +61,6 @@ public class PrivateDTOMapper {
         );
     }
 
-    public static EventReviewDTO toReviewDTO(EventReview review) {
-        if (review == null) return null;
-
-        int eventId = 0;
-        String eventName = null;
-        if (review.getEvent() != null) {
-            eventId = review.getEvent().getId();
-            eventName = review.getEvent().getName();
-        }
-
-        int userId = 0;
-        String userName = null;
-        if (review.getUser() != null) {
-            userId = review.getUser().getId();
-            userName = review.getUser().getLogin();
-        }
-
-        return new EventReviewDTO(
-                review.getId(),
-                eventId,
-                eventName,
-                userId,
-                userName,
-                review.getRating(),
-                review.getReviewText(),
-                review.getReviewDate()
-        );
-    }
 
     /**
      * Convert Location to LocationPrivateDTO with user's tickets from that location
@@ -129,12 +97,6 @@ public class PrivateDTOMapper {
     public static List<TicketPrivateDTO> toTicketDTOList(List<Ticket> tickets) {
         return tickets.stream()
                 .map(PrivateDTOMapper::toTicketDTO)
-                .collect(Collectors.toList());
-    }
-
-    public static List<EventReviewDTO> toReviewDTOList(List<EventReview> reviews) {
-        return reviews.stream()
-                .map(PrivateDTOMapper::toReviewDTO)
                 .collect(Collectors.toList());
     }
 

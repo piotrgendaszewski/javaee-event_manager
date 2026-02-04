@@ -53,9 +53,5 @@ public class EventService {
     public int getTicketQuantity(int eventId, String ticketType) {
         return eventDAO.getTicketQuantity(eventId, ticketType);
     }
-
-    public double getAverageRatingForEvent(int eventId) {
-        return eventDAO.getAverageRatingForEvent(eventId);
-    }
 }
 

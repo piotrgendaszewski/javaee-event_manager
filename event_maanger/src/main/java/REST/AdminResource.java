@@ -24,7 +24,6 @@ public class AdminResource {
     private final LocationService locationService;
     private final RoomService roomService;
     private final TicketService ticketService;
-    private final EventReviewService eventReviewService;
     private final UserService userService;
 
     public AdminResource() {
@@ -32,7 +31,6 @@ public class AdminResource {
         this.locationService = new LocationService(new LocationHibernate());
         this.roomService = new RoomService(new RoomHibernate());
         this.ticketService = new TicketService(new TicketHibernate());
-        this.eventReviewService = new EventReviewService(new EventReviewHibernate());
         this.userService = new UserService(new UserHibernate());
     }
 

@@ -1,12 +1,11 @@
 package service;
 
-import dto.EventReviewDTO;
 import dto.LocationPrivateDTO;
+import dto.PrivateDTOMapper;
 import dto.TicketPrivateDTO;
 import model.Event;
 import model.Location;
 import model.Ticket;
-import model.EventReview;
 import model.User;
 import org.junit.jupiter.api.Test;
 
@@ -75,36 +74,6 @@ class PrivateDTOMapperTest {
         assertNull(result);
     }
 
-    @Test
-    void testToReviewDTOSuccess() {
-        Event event = new Event("Concert", "Live music", "2026-05-15", "19:00", "2026-05-15", "2026-05-15", true);
-        event.setId(1);
-
-        User user = new User("reviewer", "reviewer@example.com");
-        user.setId(1);
-
-        EventReview review = new EventReview();
-        review.setId(1);
-        review.setRating(5);
-        review.setReviewText("Excellent!");
-        review.setReviewDate("2026-05-20");
-        review.setEvent(event);
-        review.setUser(user);
-
-        EventReviewDTO result = PrivateDTOMapper.toReviewDTO(review);
-
-        assertNotNull(result);
-        assertEquals(1, result.getId());
-        assertEquals(5, result.getRating());
-        assertEquals("Excellent!", result.getReviewText());
-    }
-
-    @Test
-    void testToReviewDTONull() {
-        EventReviewDTO result = PrivateDTOMapper.toReviewDTO(null);
-
-        assertNull(result);
-    }
 
     @Test
     void testToTicketDTOListSuccess() {
@@ -146,38 +115,6 @@ class PrivateDTOMapperTest {
 
         List<LocationPrivateDTO> result = PrivateDTOMapper.toLocationDTOList(locations, userTickets);
 
-        assertNotNull(result);
-        assertEquals(2, result.size());
-    }
-
-    @Test
-    void testToReviewDTOListSuccess() {
-        Event event = new Event("Event", "Description", "2026-05-01", "10:00", "2026-05-01", "2026-05-01", true);
-        event.setId(1);
-
-        User user1 = new User("user1", "user1@example.com");
-        user1.setId(1);
-
-        User user2 = new User("user2", "user2@example.com");
-        user2.setId(2);
-
-        EventReview review1 = new EventReview();
-        review1.setId(1);
-        review1.setRating(5);
-        review1.setReviewText("Great");
-        review1.setEvent(event);
-        review1.setUser(user1);
-
-        EventReview review2 = new EventReview();
-        review2.setId(2);
-        review2.setRating(4);
-        review2.setReviewText("Good");
-        review2.setEvent(event);
-        review2.setUser(user2);
-
-        List<EventReview> reviews = Arrays.asList(review1, review2);
-
-        List<EventReviewDTO> result = PrivateDTOMapper.toReviewDTOList(reviews);
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -232,30 +169,6 @@ class PrivateDTOMapperTest {
         assertEquals(originalLocation.getAddress(), dto.getAddress());
     }
 
-    @Test
-    void testDataIntegrityAfterReviewMapping() {
-        Event event = new Event("Original Event", "Original Description", "2026-05-15", "19:00", "2026-05-15", "2026-05-15", true);
-        event.setId(30);
-
-        User user = new User("reviewer", "reviewer@example.com");
-        user.setId(40);
-
-        EventReview originalReview = new EventReview();
-        originalReview.setId(50);
-        originalReview.setRating(4);
-        originalReview.setReviewText("Good review");
-        originalReview.setReviewDate("2026-05-20");
-        originalReview.setEvent(event);
-        originalReview.setUser(user);
-
-        EventReviewDTO dto = PrivateDTOMapper.toReviewDTO(originalReview);
-
-        assertEquals(originalReview.getId(), dto.getId());
-        assertEquals(originalReview.getRating(), dto.getRating());
-        assertEquals(originalReview.getReviewText(), dto.getReviewText());
-        assertEquals(30, dto.getEventId());
-        assertEquals(40, dto.getUserId());
-    }
 
     @Test
     void testToLocationDTOWithUserTickets() {

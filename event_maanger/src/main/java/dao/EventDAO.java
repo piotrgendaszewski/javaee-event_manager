@@ -19,6 +19,5 @@ public interface EventDAO {
     void setTicketQuantity(int eventId, String ticketType, int quantity);
     double getTicketPrice(int eventId, String ticketType);
     int getTicketQuantity(int eventId, String ticketType);
-    double getAverageRatingForEvent(int eventId);
 }
 

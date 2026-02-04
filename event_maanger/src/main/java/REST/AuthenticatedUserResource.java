@@ -1,28 +1,24 @@
 package REST;
 
 import dao.hibernate.TicketHibernate;
-import dao.hibernate.EventReviewHibernate;
 import dao.hibernate.LocationHibernate;
-import dto.EventReviewDTO;
 import dto.LocationPrivateDTO;
+import dto.PrivateDTOMapper;
 import dto.TicketPrivateDTO;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import model.Location;
 import model.Ticket;
-import model.EventReview;
 import service.LocationService;
 import service.TicketService;
-import service.EventReviewService;
-import service.PrivateDTOMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * API for authenticated users
- * Allows users to view their tickets, reviews and bookings
+ * Allows users to view their tickets and bookings
  * Returns DTO objects to avoid nested collection issues
  */
 @Path("/private")
@@ -31,12 +27,10 @@ import java.util.stream.Collectors;
 public class AuthenticatedUserResource {
 
     private final TicketService ticketService;
-    private final EventReviewService eventReviewService;
     private final LocationService locationService;
 
     public AuthenticatedUserResource() {
         this.ticketService = new TicketService(new TicketHibernate());
-        this.eventReviewService = new EventReviewService(new EventReviewHibernate());
         this.locationService = new LocationService(new LocationHibernate());
     }
 
@@ -141,7 +135,7 @@ public class AuthenticatedUserResource {
     // ===== LOCATIONS =====
 
     /**
-     * Get all locations with user's tickets for each location
+     * Get user's locations - only locations where user has tickets
      * Requires authentication
      */
     @GET
@@ -153,10 +147,18 @@ public class AuthenticatedUserResource {
             throw new ForbiddenException("User ID not found in token");
         }
 
-        List<Location> locations = locationService.getAllLocations();
+        // Get user's tickets
         List<Ticket> userTickets = ticketService.getTicketsByUser(userId);
 
-        return PrivateDTOMapper.toLocationDTOList(locations, userTickets);
+        // Extract unique locations from user's tickets (deduplicate by ID using LinkedHashSet)
+        java.util.Set<Integer> seenLocationIds = new java.util.LinkedHashSet<>();
+        List<Location> userLocations = userTickets.stream()
+                .map(ticket -> ticket.getEvent().getLocations())
+                .flatMap(List::stream)
+                .filter(location -> seenLocationIds.add(location.getId()))
+                .collect(Collectors.toList());
+
+        return PrivateDTOMapper.toLocationDTOList(userLocations, userTickets);
     }
 
     /**
@@ -180,128 +182,6 @@ public class AuthenticatedUserResource {
 
         List<Ticket> userTickets = ticketService.getTicketsByUser(userId);
         return PrivateDTOMapper.toLocationDTO(location, userTickets);
-    }
-
-    // ===== REVIEWS =====
-
-    /**
-     * Get user's reviews
-     * Requires authentication
-     */
-    @GET
-    @Path("/reviews")
-    public List<EventReviewDTO> getUserReviews(@Context ContainerRequestContext requestContext) {
-        Integer userId = (Integer) requestContext.getProperty("userId");
-
-        if (userId == null) {
-            throw new ForbiddenException("User ID not found in token");
-        }
-
-        List<EventReview> reviews = eventReviewService.getReviewsByUser(userId);
-        return PrivateDTOMapper.toReviewDTOList(reviews);
-    }
-
-    /**
-     * Add review for event
-     * Requires authentication
-     */
-    @POST
-    @Path("/reviews")
-    public EventReviewDTO addReview(EventReview review, @Context ContainerRequestContext requestContext) {
-        Integer userId = (Integer) requestContext.getProperty("userId");
-
-        if (userId == null) {
-            throw new ForbiddenException("User ID not found in token");
-        }
-
-        // Validate rating
-        if (review.getRating() < 1 || review.getRating() > 5) {
-            throw new BadRequestException("Rating must be between 1 and 5 stars");
-        }
-
-        // Check if user already reviewed this event
-        int eventId = review.getEvent().getId();
-        if (eventReviewService.hasUserReviewedEvent(eventId, userId)) {
-            throw new BadRequestException("You have already reviewed this event");
-        }
-
-        try {
-            EventReview newReview = eventReviewService.addReview(
-                    eventId,
-                    userId,
-                    review.getRating(),
-                    review.getReviewText(),
-                    review.getReviewDate()
-            );
-
-            return PrivateDTOMapper.toReviewDTO(newReview);
-        } catch (Exception e) {
-            SQLErrorHandler.handleSQLException(e, "create review");
-            return null; // Will not reach due to exception
-        }
-    }
-
-    /**
-     * Update user's review
-     * Requires authentication and review ownership
-     */
-    @PUT
-    @Path("/reviews/{reviewId}")
-    public EventReviewDTO updateReview(@PathParam("reviewId") int reviewId,
-                                   EventReview review,
-                                   @Context ContainerRequestContext requestContext) {
-        Integer userId = (Integer) requestContext.getProperty("userId");
-
-        if (userId == null) {
-            throw new ForbiddenException("User ID not found in token");
-        }
-
-        EventReview existingReview = eventReviewService.getReview(reviewId);
-        if (existingReview == null) {
-            throw new NotFoundException("Review not found");
-        }
-
-        // Verify ownership
-        if (existingReview.getUser().getId() != userId) {
-            throw new ForbiddenException("You don't have access to this review");
-        }
-
-        // Validate rating
-        if (review.getRating() < 1 || review.getRating() > 5) {
-            throw new BadRequestException("Rating must be between 1 and 5 stars");
-        }
-
-        review.setId(reviewId);
-        eventReviewService.updateReview(review);
-
-        return PrivateDTOMapper.toReviewDTO(review);
-    }
-
-    /**
-     * Delete user's review
-     * Requires authentication and review ownership
-     */
-    @DELETE
-    @Path("/reviews/{reviewId}")
-    public void deleteReview(@PathParam("reviewId") int reviewId,
-                            @Context ContainerRequestContext requestContext) {
-        Integer userId = (Integer) requestContext.getProperty("userId");
-
-        if (userId == null) {
-            throw new ForbiddenException("User ID not found in token");
-        }
-
-        EventReview review = eventReviewService.getReview(reviewId);
-        if (review == null) {
-            throw new NotFoundException("Review not found");
-        }
-
-        // Verify ownership
-        if (review.getUser().getId() != userId) {
-            throw new ForbiddenException("You don't have access to this review");
-        }
-
-        eventReviewService.deleteReview(review);
     }
 }
 

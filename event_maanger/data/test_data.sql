@@ -197,30 +197,6 @@ VALUES (8, 5, 5, 'PARTICIPANT', 80.00, '2026-07-01', '2026-08-15', '2026-08-15',
 INSERT OR IGNORE INTO tickets (id, event_id, user_id, ticket_type, price, purchase_date, valid_from_date, valid_to_date, seat_number)
 VALUES (9, 1, 5, 'ECONOMY', 40.00, '2026-05-08', '2026-05-08', '2026-05-15', '501');
 
--- ========== EVENT_REVIEWS ==========
-INSERT OR IGNORE INTO event_reviews (id, event_id, user_id, rating, review_text, review_date)
-VALUES (1, 1, 2, 5, 'Fantastyczny koncert! Wspaniała atmosfera i świetna muzyka.', '2026-05-16');
-
-INSERT OR IGNORE INTO event_reviews (id, event_id, user_id, rating, review_text, review_date)
-VALUES (2, 1, 3, 4, 'Bardzo dobry koncert, choć trochę długi program.', '2026-05-17');
-
-INSERT OR IGNORE INTO event_reviews (id, event_id, user_id, rating, review_text, review_date)
-VALUES (3, 1, 5, 5, 'Najlepszy koncert roku! Polecam wszystkim.', '2026-05-16');
-
-INSERT OR IGNORE INTO event_reviews (id, event_id, user_id, rating, review_text, review_date)
-VALUES (4, 2, 2, 3, 'Ciekawe, ale brakło tradycyjnego jazzu.', '2026-06-04');
-
-INSERT OR IGNORE INTO event_reviews (id, event_id, user_id, rating, review_text, review_date)
-VALUES (5, 2, 4, 4, 'Dobrze zorganizowany festiwal, warta polecenia.', '2026-06-04');
-
-INSERT OR IGNORE INTO event_reviews (id, event_id, user_id, rating, review_text, review_date)
-VALUES (6, 3, 3, 5, 'Turniej tenisa najwyższego poziomu!', '2026-07-18');
-
-INSERT OR IGNORE INTO event_reviews (id, event_id, user_id, rating, review_text, review_date)
-VALUES (7, 4, 4, 4, 'Ciekawa kolekcja dzieł sztuki wspócsesnej.', '2026-05-31');
-
-INSERT OR IGNORE INTO event_reviews (id, event_id, user_id, rating, review_text, review_date)
-VALUES (8, 5, 5, 5, 'Maraton organizacyjnie bez zarzutu!', '2026-08-16');
 
 -- ========== LOCATION_CONTACTS ==========
 -- Powiązanie użytkowników jako kontaktów do lokacji

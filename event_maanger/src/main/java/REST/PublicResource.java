@@ -1,18 +1,14 @@
 package REST;
 
 import dao.hibernate.EventHibernate;
-import dao.hibernate.EventReviewHibernate;
 import dao.hibernate.UserHibernate;
+import dto.EventPublicDTO;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import model.Event;
-import model.EventReview;
 import model.User;
 import service.AuthService;
-import service.EventPublicDTO;
-import service.EventReviewPublicDTO;
-import service.EventReviewService;
 import service.EventService;
 import service.TicketService;
 
@@ -33,13 +29,11 @@ public class PublicResource {
 
     private final EventService eventService;
     private final TicketService ticketService;
-    private final EventReviewService eventReviewService;
     private final AuthService authService;
 
     public PublicResource() {
         this.eventService = new EventService(new EventHibernate());
         this.ticketService = new TicketService(new dao.hibernate.TicketHibernate());
-        this.eventReviewService = new EventReviewService(new EventReviewHibernate());
         this.authService = new AuthService(new UserHibernate());
     }
 
@@ -56,7 +50,7 @@ public class PublicResource {
         return eventService.getAllEvents().stream()
                 .map(event -> {
                     Map<String, Integer> remaining = ticketService.getRemainingTicketsByEvent(event.getId());
-                    double avgRating = eventReviewService.getAverageRatingForEvent(event.getId());
+                    double avgRating = 0.0; // Average rating calculation removed with EventReview
                     return new EventPublicDTO(event, remaining, avgRating);
                 })
                 .collect(Collectors.toList());
@@ -149,7 +143,7 @@ public class PublicResource {
         return events.stream()
                 .map(event -> {
                     Map<String, Integer> remaining = ticketService.getRemainingTicketsByEvent(event.getId());
-                    double avgRating = eventReviewService.getAverageRatingForEvent(event.getId());
+                    double avgRating = 0.0; // Average rating calculation removed with EventReview
                     return new EventPublicDTO(event, remaining, avgRating);
                 })
                 .collect(Collectors.toList());
@@ -168,7 +162,7 @@ public class PublicResource {
             throw new NotFoundException("Event not found");
         }
         Map<String, Integer> remaining = ticketService.getRemainingTicketsByEvent(id);
-        double avgRating = eventReviewService.getAverageRatingForEvent(id);
+        double avgRating = 0.0; // Average rating calculation removed with EventReview
         return new EventPublicDTO(event, remaining, avgRating);
     }
 
@@ -185,19 +179,10 @@ public class PublicResource {
             throw new NotFoundException("Event not found");
         }
         Map<String, Integer> remaining = ticketService.getRemainingTicketsByEvent(event.getId());
-        double avgRating = eventReviewService.getAverageRatingForEvent(event.getId());
+        double avgRating = 0.0; // Average rating calculation removed with EventReview
         return new EventPublicDTO(event, remaining, avgRating);
     }
 
-    /**
-     * Get average rating for event - PUBLIC endpoint
-     * GET /public/events/{eventId}/average-rating
-     */
-    @GET
-    @Path("/events/{eventId}/average-rating")
-    public double getAverageRatingForEvent(@PathParam("eventId") int eventId) {
-        return eventService.getAverageRatingForEvent(eventId);
-    }
 
     /**
      * Get remaining tickets count for event - PUBLIC endpoint
@@ -209,103 +194,6 @@ public class PublicResource {
         return ticketService.getRemainingTicketsByEvent(eventId);
     }
 
-    // ===== REVIEWS ENDPOINTS =====
-
-    /**
-     * Get all reviews for event - PUBLIC endpoint
-     * GET /public/events/{eventId}/reviews
-     * Returns EventReviewPublicDTO with essential review data only (no user sensitive data)
-     */
-    @GET
-    @Path("/events/{eventId}/reviews")
-    public List<EventReviewPublicDTO> getEventReviews(@PathParam("eventId") int eventId) {
-        return eventReviewService.getReviewsByEvent(eventId).stream()
-                .map(EventReviewPublicDTO::new)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Get reviews for event with filters and sorting
-     * GET /public/events/{eventId}/reviews/search
-     * Returns EventReviewPublicDTO with essential review data only
-     * @param startDate filter reviews from this date (YYYY-MM-DD)
-     * @param endDate filter reviews until this date (YYYY-MM-DD)
-     * @param minRating filter reviews with minimum rating (1-5)
-     * @param maxRating filter reviews with maximum rating (1-5)
-     * @param sortBy sort by: "date" (default) or "rating"
-     * @param sortOrder sort order: "asc" (ascending) or "desc" (descending, default)
-     */
-    @GET
-    @Path("/events/{eventId}/reviews/search")
-    public List<EventReviewPublicDTO> searchEventReviews(
-            @PathParam("eventId") int eventId,
-            @QueryParam("startDate") String startDate,
-            @QueryParam("endDate") String endDate,
-            @QueryParam("minRating") Integer minRating,
-            @QueryParam("maxRating") Integer maxRating,
-            @QueryParam("sortBy") String sortBy,
-            @QueryParam("sortOrder") String sortOrder) {
-
-        List<EventReview> reviews = eventReviewService.getReviewsByEvent(eventId);
-
-        // Filter by review date range
-        if (startDate != null && !startDate.trim().isEmpty()) {
-            reviews = reviews.stream()
-                    .filter(r -> r.getReviewDate() != null && r.getReviewDate().compareTo(startDate) >= 0)
-                    .collect(Collectors.toList());
-        }
-
-        if (endDate != null && !endDate.trim().isEmpty()) {
-            reviews = reviews.stream()
-                    .filter(r -> r.getReviewDate() != null && r.getReviewDate().compareTo(endDate) <= 0)
-                    .collect(Collectors.toList());
-        }
-
-        // Filter by rating range
-        if (minRating != null) {
-            reviews = reviews.stream()
-                    .filter(r -> r.getRating() >= minRating)
-                    .collect(Collectors.toList());
-        }
-
-        if (maxRating != null) {
-            reviews = reviews.stream()
-                    .filter(r -> r.getRating() <= maxRating)
-                    .collect(Collectors.toList());
-        }
-
-        // Sort results
-        String sort = (sortBy != null && !sortBy.trim().isEmpty()) ? sortBy.toLowerCase() : "date";
-        String order = (sortOrder != null && !sortOrder.trim().isEmpty()) ? sortOrder.toLowerCase() : "desc";
-
-        if ("rating".equals(sort)) {
-            if ("asc".equals(order)) {
-                reviews.sort((r1, r2) -> Integer.compare(r1.getRating(), r2.getRating()));
-            } else {
-                reviews.sort((r1, r2) -> Integer.compare(r2.getRating(), r1.getRating()));
-            }
-        } else {
-            // Default sort by date
-            if ("asc".equals(order)) {
-                reviews.sort((r1, r2) -> {
-                    String d1 = r1.getReviewDate() != null ? r1.getReviewDate() : "";
-                    String d2 = r2.getReviewDate() != null ? r2.getReviewDate() : "";
-                    return d1.compareTo(d2);
-                });
-            } else {
-                reviews.sort((r1, r2) -> {
-                    String d1 = r1.getReviewDate() != null ? r1.getReviewDate() : "";
-                    String d2 = r2.getReviewDate() != null ? r2.getReviewDate() : "";
-                    return d2.compareTo(d1);
-                });
-            }
-        }
-
-        // Convert to EventReviewPublicDTO
-        return reviews.stream()
-                .map(EventReviewPublicDTO::new)
-                .collect(Collectors.toList());
-    }
 
     // ===== REGISTRATION ENDPOINT =====
 
