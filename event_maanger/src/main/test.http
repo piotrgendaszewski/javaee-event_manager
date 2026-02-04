@@ -1,0 +1,16 @@
+### GET request to example server
+POST http://localhost:8080/zadanie_1_war_exploded/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "bob",
+  "password": "admin123"
+}
+
+###
+
+GET http://localhost:8080/zadanie_1_war_exploded/api/auth/role
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2IiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NjgxMzEzNTQsImV4cCI6MTc2ODEzNDk1NH0.q0Wf3qMiscSBlkp93NieX9_RlC3vu9g8YLw4UoKiXyA
+
+
+
