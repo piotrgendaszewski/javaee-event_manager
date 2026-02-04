@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database connection settings -->
+        <property name="hibernate.connection.driver_class">org.sqlite.JDBC</property>
+        <property name="hibernate.connection.url">jdbc:sqlite:E:/Users/Piotr/Documents/GitHub/javaee-event_manager/event_maanger/data/event_manager.sqlite</property>
+        <property name="hibernate.dialect">org.hibernate.community.dialect.SQLiteDialect</property>
+
+        <!-- Connection pool settings -->
+        <property name="hibernate.connection.pool_size">1</property>
+        <property name="hibernate.max_fetch_depth">3</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.format_sql">true</property>
+
+        <!-- Drop and re-create the database schema on startup - DISABLED FOR TESTS -->
+        <property name="hibernate.hbm2ddl.auto">none</property>
+
+        <!-- Transaction settings -->
+        <property name="hibernate.transaction.coordinator_class">jdbc</property>
+
+        <!-- Mapped classes -->
+        <mapping class="model.User"/>
+        <mapping class="model.Event"/>
+        <mapping class="model.Ticket"/>
+        <mapping class="model.EventReview"/>
+    </session-factory>
+</hibernate-configuration>
+

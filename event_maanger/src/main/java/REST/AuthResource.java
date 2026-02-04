@@ -17,10 +17,23 @@ public class AuthResource {
     private final AuthService authService;
     private UserHibernate userHibernate;
 
+    /**
+     * Constructor with dependency injection
+     * Used by Jersey for request-scoped instantiation
+     */
     public AuthResource() {
         // Create single instance per request
         this.userHibernate = new UserHibernate();
         this.authService = new AuthService(userHibernate);
+    }
+
+    /**
+     * Constructor for testing with injected AuthService
+     * @param authService injected AuthService instance
+     */
+    public AuthResource(AuthService authService) {
+        this.authService = authService;
+        this.userHibernate = null; // Not used when AuthService is injected
     }
 
     /**
@@ -46,7 +59,7 @@ public class AuthResource {
                     request.getAddress(),
                     request.getPhoneNumber()
             );
-            userHibernate.commit();
+            if (userHibernate != null) userHibernate.commit();
 
             Map<String, String> response = new HashMap<>();
             response.put("message", "User registered successfully");
@@ -57,12 +70,12 @@ public class AuthResource {
                     .build();
 
         } catch (IllegalArgumentException e) {
-            userHibernate.rollback();
+            if (userHibernate != null) userHibernate.rollback();
             return Response.status(Response.Status.CONFLICT)
                     .entity(errorResponse(e.getMessage()))
                     .build();
         } catch (Exception e) {
-            userHibernate.rollback();
+            if (userHibernate != null) userHibernate.rollback();
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(errorResponse("Registration failed: " + e.getMessage()))
@@ -108,14 +121,14 @@ public class AuthResource {
 
         } catch (IllegalArgumentException e) {
             System.out.println("[AuthResource] Login failed: " + e.getMessage());
-            userHibernate.rollback();
+            if (userHibernate != null) userHibernate.rollback();
             return Response.status(Response.Status.UNAUTHORIZED)
                     .entity(errorResponse(e.getMessage()))
                     .build();
         } catch (Exception e) {
             System.out.println("[AuthResource] Unexpected error: " + e.getMessage());
             e.printStackTrace();
-            userHibernate.rollback();
+            if (userHibernate != null) userHibernate.rollback();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(errorResponse("Login failed: " + e.getMessage()))
                     .build();
