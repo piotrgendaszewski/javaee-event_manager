@@ -181,5 +181,19 @@ public class Event {
     public void setTicketQuantities(Map<String, Integer> ticketQuantities) {
         this.ticketQuantities = ticketQuantities;
     }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", eventDate='" + eventDate + '\'' +
+                ", eventTime='" + eventTime + '\'' +
+                ", eventStartDate='" + eventStartDate + '\'' +
+                ", eventEndDate='" + eventEndDate + '\'' +
+                ", numberedSeats=" + numberedSeats +
+                '}';
+    }
 }
 

@@ -123,5 +123,17 @@ public class EventReview {
     public boolean isValid() {
         return event != null && user != null && rating >= 1 && rating <= 5 && reviewDate != null;
     }
+
+    @Override
+    public String toString() {
+        return "EventReview{" +
+                "id=" + id +
+                ", eventId=" + (event != null ? event.getId() : 0) +
+                ", userId=" + (user != null ? user.getId() : 0) +
+                ", rating=" + rating +
+                ", reviewText='" + reviewText + '\'' +
+                ", reviewDate='" + reviewDate + '\'' +
+                '}';
+    }
 }
 

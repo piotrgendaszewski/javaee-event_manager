@@ -170,5 +170,20 @@ public class Ticket {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "Ticket{" +
+                "id=" + id +
+                ", eventId=" + (event != null ? event.getId() : 0) +
+                ", userId=" + (user != null ? user.getId() : 0) +
+                ", ticketType='" + ticketType + '\'' +
+                ", price=" + price +
+                ", seatNumber='" + seatNumber + '\'' +
+                ", purchaseDate='" + purchaseDate + '\'' +
+                ", validFromDate='" + validFromDate + '\'' +
+                ", validToDate='" + validToDate + '\'' +
+                '}';
+    }
 }
 

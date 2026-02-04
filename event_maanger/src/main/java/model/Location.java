@@ -36,7 +36,8 @@ public class Location {
     @OneToMany(mappedBy = "location")
     private List<Room> rooms;
 
-    public Location() {};
+    public Location() {
+    }
 
     public Location(int id, String name, String address) {
         this.id = id;
@@ -58,6 +59,14 @@ public class Location {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getAddress() {
@@ -104,5 +113,16 @@ public class Location {
      */
     public String getCapacityInfo() {
         return "Location: " + name + " - Max Capacity: " + maxAvailableSeats + " seats";
+    }
+
+    @Override
+    public String toString() {
+        return "Location{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", address='" + address + '\'' +
+                ", maxAvailableSeats=" + maxAvailableSeats +
+                '}';
     }
 }

@@ -51,7 +51,8 @@ public class User {
         isAdmin = admin;
     }
 
-    public User() {};
+    public User() {
+    }
 
     public User(String login, String email) {
         this.login = login;
@@ -118,12 +119,14 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "login='" + login + '\'' +
+                "id=" + id +
+                ", login='" + login + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", address='" + address + '\'' +
+                ", isAdmin=" + isAdmin +
                 '}';
     }
 

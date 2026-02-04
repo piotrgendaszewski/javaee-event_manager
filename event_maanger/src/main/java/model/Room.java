@@ -113,5 +113,16 @@ public class Room {
     public String getCapacityInfo() {
         return "Room: " + name + " - Capacity: " + seatCapacity + " seats";
     }
+
+    @Override
+    public String toString() {
+        return "Room{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", seatCapacity=" + seatCapacity +
+                ", locationId=" + (location != null ? location.getId() : 0) +
+                '}';
+    }
 }
 
