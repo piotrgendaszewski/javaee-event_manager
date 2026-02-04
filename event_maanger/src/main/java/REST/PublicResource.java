@@ -10,6 +10,8 @@ import model.Event;
 import model.EventReview;
 import model.User;
 import service.AuthService;
+import service.EventPublicDTO;
+import service.EventReviewPublicDTO;
 import service.EventReviewService;
 import service.EventService;
 import service.TicketService;
@@ -46,16 +48,24 @@ public class PublicResource {
     /**
      * Get all available events - PUBLIC endpoint
      * GET /public/events
+     * Returns EventPublicDTO with essential data only (no full entity graph)
      */
     @GET
     @Path("/events")
-    public List<Event> getAllEvents() {
-        return eventService.getAllEvents();
+    public List<EventPublicDTO> getAllEvents() {
+        return eventService.getAllEvents().stream()
+                .map(event -> {
+                    Map<String, Integer> remaining = ticketService.getRemainingTicketsByEvent(event.getId());
+                    double avgRating = eventReviewService.getAverageRatingForEvent(event.getId());
+                    return new EventPublicDTO(event, remaining, avgRating);
+                })
+                .collect(Collectors.toList());
     }
 
     /**
      * Get events with optional filters
      * GET /public/events/search
+     * Returns EventPublicDTO with essential data only
      * @param eventName filter by event name (fragment)
      * @param locationName filter by location name (fragment)
      * @param startDate filter by event start date (YYYY-MM-DD format)
@@ -66,7 +76,7 @@ public class PublicResource {
      */
     @GET
     @Path("/events/search")
-    public List<Event> searchEvents(
+    public List<EventPublicDTO> searchEvents(
             @QueryParam("eventName") String eventName,
             @QueryParam("locationName") String locationName,
             @QueryParam("startDate") String startDate,
@@ -135,35 +145,48 @@ public class PublicResource {
                     .collect(Collectors.toList());
         }
 
-        return events;
+        // Convert to EventPublicDTO
+        return events.stream()
+                .map(event -> {
+                    Map<String, Integer> remaining = ticketService.getRemainingTicketsByEvent(event.getId());
+                    double avgRating = eventReviewService.getAverageRatingForEvent(event.getId());
+                    return new EventPublicDTO(event, remaining, avgRating);
+                })
+                .collect(Collectors.toList());
     }
 
     /**
      * Get event by ID - PUBLIC endpoint
      * GET /public/events/{id}
+     * Returns EventPublicDTO with essential data only
      */
     @GET
     @Path("/events/{id}")
-    public Event getEvent(@PathParam("id") int id) {
+    public EventPublicDTO getEvent(@PathParam("id") int id) {
         Event event = eventService.getEvent(id);
         if (event == null) {
             throw new NotFoundException("Event not found");
         }
-        return event;
+        Map<String, Integer> remaining = ticketService.getRemainingTicketsByEvent(id);
+        double avgRating = eventReviewService.getAverageRatingForEvent(id);
+        return new EventPublicDTO(event, remaining, avgRating);
     }
 
     /**
      * Get event by name - PUBLIC endpoint
      * GET /public/events/name/{name}
+     * Returns EventPublicDTO with essential data only
      */
     @GET
     @Path("/events/name/{name}")
-    public Event getEventByName(@PathParam("name") String name) {
+    public EventPublicDTO getEventByName(@PathParam("name") String name) {
         Event event = eventService.getEventByName(name);
         if (event == null) {
             throw new NotFoundException("Event not found");
         }
-        return event;
+        Map<String, Integer> remaining = ticketService.getRemainingTicketsByEvent(event.getId());
+        double avgRating = eventReviewService.getAverageRatingForEvent(event.getId());
+        return new EventPublicDTO(event, remaining, avgRating);
     }
 
     /**
@@ -191,16 +214,20 @@ public class PublicResource {
     /**
      * Get all reviews for event - PUBLIC endpoint
      * GET /public/events/{eventId}/reviews
+     * Returns EventReviewPublicDTO with essential review data only (no user sensitive data)
      */
     @GET
     @Path("/events/{eventId}/reviews")
-    public List<EventReview> getEventReviews(@PathParam("eventId") int eventId) {
-        return eventReviewService.getReviewsByEvent(eventId);
+    public List<EventReviewPublicDTO> getEventReviews(@PathParam("eventId") int eventId) {
+        return eventReviewService.getReviewsByEvent(eventId).stream()
+                .map(EventReviewPublicDTO::new)
+                .collect(Collectors.toList());
     }
 
     /**
      * Get reviews for event with filters and sorting
      * GET /public/events/{eventId}/reviews/search
+     * Returns EventReviewPublicDTO with essential review data only
      * @param startDate filter reviews from this date (YYYY-MM-DD)
      * @param endDate filter reviews until this date (YYYY-MM-DD)
      * @param minRating filter reviews with minimum rating (1-5)
@@ -210,7 +237,7 @@ public class PublicResource {
      */
     @GET
     @Path("/events/{eventId}/reviews/search")
-    public List<EventReview> searchEventReviews(
+    public List<EventReviewPublicDTO> searchEventReviews(
             @PathParam("eventId") int eventId,
             @QueryParam("startDate") String startDate,
             @QueryParam("endDate") String endDate,
@@ -274,7 +301,10 @@ public class PublicResource {
             }
         }
 
-        return reviews;
+        // Convert to EventReviewPublicDTO
+        return reviews.stream()
+                .map(EventReviewPublicDTO::new)
+                .collect(Collectors.toList());
     }
 
     // ===== REGISTRATION ENDPOINT =====

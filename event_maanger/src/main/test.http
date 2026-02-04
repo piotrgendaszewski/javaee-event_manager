@@ -26,7 +26,7 @@ POST http://localhost:8080/event_maanger_war_exploded/api/auth/register
 Content-Type: application/json
 
 {
-  "login": "newuser",
+  "login": "newuser3",
   "password": "password123",
   "email": "newuser@example.com",
   "firstName": "John",
@@ -60,16 +60,16 @@ Content-Type: application/json
 
 
 
-### Test 6: Get all events (public)
+### Test 6: Get all events (public) - Returns EventPublicDTO with pricing and availability
 GET http://localhost:8080/event_maanger_war_exploded/api/public/events
 Accept: application/json
 
-### Test 7: Get event by ID (public)
+### Test 7: Get event by ID (public) - Returns EventPublicDTO with pricing and availability
 GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1
 Accept: application/json
 
 
-### Test 9: Search events with filters (public)
+### Test 9: Search events with filters (public) - Returns list of EventPublicDTO
 GET http://localhost:8080/event_maanger_war_exploded/api/public/events/search?eventName=Jazz Festival
 Accept: application/json
 
@@ -81,11 +81,11 @@ Accept: application/json
 GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1/tickets/remaining
 Accept: application/json
 
-### Test 12: Get reviews for event (public)
+### Test 12: Get reviews for event (public) - Returns EventReviewPublicDTO (no sensitive user data)
 GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1/reviews
 Accept: application/json
 
-### Test 13: Get reviews with filters (public)
+### Test 13: Get reviews with filters (public) - Returns list of EventReviewPublicDTO
 GET http://localhost:8080/event_maanger_war_exploded/api/public/events/1/reviews/search?minRating=4&maxRating=5&sortBy=rating&sortOrder=desc
 Accept: application/json
 
