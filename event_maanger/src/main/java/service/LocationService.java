@@ -12,13 +12,6 @@ public class LocationService {
         this.locationDAO = locationDAO;
     }
 
-    public void commit() {
-        locationDAO.commit();
-    }
-
-    public void rollback() {
-        locationDAO.rollback();
-    }
 
     public Location addLocation(String name, String address) {
         return locationDAO.addLocation(name, address);

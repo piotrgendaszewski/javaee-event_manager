@@ -1,6 +1,5 @@
 package REST;
 
-import dao.hibernate.UserHibernate;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -15,7 +14,6 @@ import java.util.Map;
 public class AuthResource {
 
     private final AuthService authService;
-    private UserHibernate userHibernate;
 
     /**
      * Constructor with dependency injection
@@ -23,8 +21,7 @@ public class AuthResource {
      */
     public AuthResource() {
         // Create single instance per request
-        this.userHibernate = new UserHibernate();
-        this.authService = new AuthService(userHibernate);
+        this.authService = new AuthService(new dao.hibernate.UserHibernate());
     }
 
     /**
@@ -33,7 +30,6 @@ public class AuthResource {
      */
     public AuthResource(AuthService authService) {
         this.authService = authService;
-        this.userHibernate = null; // Not used when AuthService is injected
     }
 
     /**
@@ -59,7 +55,6 @@ public class AuthResource {
                     request.getAddress(),
                     request.getPhoneNumber()
             );
-            if (userHibernate != null) userHibernate.commit();
 
             Map<String, String> response = new HashMap<>();
             response.put("message", "User registered successfully");
@@ -70,12 +65,10 @@ public class AuthResource {
                     .build();
 
         } catch (IllegalArgumentException e) {
-            if (userHibernate != null) userHibernate.rollback();
             return Response.status(Response.Status.CONFLICT)
                     .entity(errorResponse(e.getMessage()))
                     .build();
         } catch (Exception e) {
-            if (userHibernate != null) userHibernate.rollback();
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(errorResponse("Registration failed: " + e.getMessage()))
@@ -121,14 +114,12 @@ public class AuthResource {
 
         } catch (IllegalArgumentException e) {
             System.out.println("[AuthResource] Login failed: " + e.getMessage());
-            if (userHibernate != null) userHibernate.rollback();
             return Response.status(Response.Status.UNAUTHORIZED)
                     .entity(errorResponse(e.getMessage()))
                     .build();
         } catch (Exception e) {
             System.out.println("[AuthResource] Unexpected error: " + e.getMessage());
             e.printStackTrace();
-            if (userHibernate != null) userHibernate.rollback();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(errorResponse("Login failed: " + e.getMessage()))
                     .build();

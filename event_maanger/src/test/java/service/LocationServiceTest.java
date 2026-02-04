@@ -85,15 +85,6 @@ class LocationServiceTest {
         assertNotNull(result);
     }
 
-    @Test
-    void testCommit() {
-        assertDoesNotThrow(() -> locationService.commit());
-    }
-
-    @Test
-    void testRollback() {
-        assertDoesNotThrow(() -> locationService.rollback());
-    }
 
     private static class TestLocationDAO implements LocationDAO {
         private List<Location> locations = new ArrayList<>();

@@ -13,13 +13,6 @@ public class EventService {
         this.eventDAO = eventDAO;
     }
 
-    public void commit() {
-        eventDAO.commit();
-    }
-
-    public void rollback() {
-        eventDAO.rollback();
-    }
 
     public Event addEvent(String name, String description, String eventDate, String eventTime, String eventStartDate, String eventEndDate, boolean numberedSeats) {
         return eventDAO.addEvent(name, description, eventDate, eventTime, eventStartDate, eventEndDate, numberedSeats);

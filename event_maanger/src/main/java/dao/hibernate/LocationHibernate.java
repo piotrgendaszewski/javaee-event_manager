@@ -1,90 +1,142 @@
 package dao.hibernate;
 
 import dao.LocationDAO;
-import model.Event;
-import model.EventReview;
 import model.Location;
-import model.Room;
-import model.Ticket;
 import model.User;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 
 import java.util.List;
 
 public class LocationHibernate implements LocationDAO {
 
-    SessionFactory sessionFactory;
-    Session session;
-    Transaction transaction;
-
     public LocationHibernate() {
-        sessionFactory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Location.class)
-                .addAnnotatedClass(User.class)
-                .addAnnotatedClass(Room.class)
-                .addAnnotatedClass(Event.class)
-                .addAnnotatedClass(Ticket.class)
-                .addAnnotatedClass(EventReview.class)
-                .buildSessionFactory();
-        session = sessionFactory.openSession();
-        transaction = session.beginTransaction();
+        // No-arg constructor - SessionFactory is shared via singleton
     }
 
+    private Session getSession() {
+        return HibernateSessionFactory.getSessionFactory().openSession();
+    }
+
+    @Override
     public void commit() {
-        transaction.commit();
+        // No-op: transactions are handled per-operation
     }
 
+    @Override
     public void rollback() {
-        transaction.rollback();
+        // No-op: transactions are handled per-operation
     }
 
     @Override
     public Location addLocation(String name, String address) {
-        Location location = new Location();
-        location.setName(name);
-        location.setAddress(address);
-        session.persist(location);
-        return location;
+        Session session = getSession();
+        Transaction transaction = null;
+
+        try {
+            transaction = session.beginTransaction();
+            Location location = new Location();
+            location.setName(name);
+            location.setAddress(address);
+            session.persist(location);
+            transaction.commit();
+            return location;
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error adding location: " + e.getMessage(), e);
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public Location getLocationById(int id) {
-        return session.get(Location.class, id);
+        Session session = getSession();
+
+        try {
+            return session.get(Location.class, id);
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public Location getLocationByName(String name) {
-        String query = "FROM Location WHERE name = :name";
-        return session.createQuery(query, Location.class)
-                .setParameter("name", name)
-                .uniqueResult();
+        Session session = getSession();
+
+        try {
+            String query = "FROM Location WHERE name = :name";
+            return session.createQuery(query, Location.class)
+                    .setParameter("name", name)
+                    .uniqueResult();
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public void updateLocation(Location location) {
-        session.merge(location);
+        Session session = getSession();
+        Transaction transaction = null;
+
+        try {
+            transaction = session.beginTransaction();
+            session.merge(location);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error updating location: " + e.getMessage(), e);
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public void deleteLocation(Location location) {
-        session.remove(location);
+        Session session = getSession();
+        Transaction transaction = null;
+
+        try {
+            transaction = session.beginTransaction();
+            session.remove(session.merge(location));
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error deleting location: " + e.getMessage(), e);
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public List<Location> getAllLocations() {
-        String query = "FROM Location";
-        return session.createQuery(query, Location.class).list();
+        Session session = getSession();
+
+        try {
+            String query = "FROM Location";
+            return session.createQuery(query, Location.class).list();
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public List<User> getContactsByLocationId(int locationId) {
-        String query = "SELECT contacts FROM Location l JOIN l.contacts contacts WHERE l.id = :locationId";
-        return session.createQuery(query, User.class)
-                .setParameter("locationId", locationId)
-                .list();
+        Session session = getSession();
+
+        try {
+            String query = "SELECT contacts FROM Location l JOIN l.contacts contacts WHERE l.id = :locationId";
+            return session.createQuery(query, User.class)
+                    .setParameter("locationId", locationId)
+                    .list();
+        } finally {
+            session.close();
+        }
     }
 }

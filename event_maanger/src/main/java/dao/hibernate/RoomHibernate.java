@@ -1,96 +1,153 @@
 package dao.hibernate;
 
 import dao.RoomDAO;
-import model.Event;
-import model.EventReview;
-import model.Location;
 import model.Room;
-import model.Ticket;
-import model.User;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 
 import java.util.List;
 
 public class RoomHibernate implements RoomDAO {
 
-    SessionFactory sessionFactory;
-    Session session;
-    Transaction transaction;
-
     public RoomHibernate() {
-        sessionFactory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Room.class)
-                .addAnnotatedClass(Location.class)
-                .addAnnotatedClass(User.class)
-                .addAnnotatedClass(Event.class)
-                .addAnnotatedClass(Ticket.class)
-                .addAnnotatedClass(EventReview.class)
-                .buildSessionFactory();
-        session = sessionFactory.openSession();
-        transaction = session.beginTransaction();
+        // No-arg constructor - SessionFactory is shared via singleton
     }
 
+    private Session getSession() {
+        return HibernateSessionFactory.getSessionFactory().openSession();
+    }
+
+    @Override
     public void commit() {
-        transaction.commit();
+        // No-op: transactions are handled per-operation
     }
 
+    @Override
     public void rollback() {
-        transaction.rollback();
+        // No-op: transactions are handled per-operation
     }
 
     @Override
     public Room addRoom(String name, String description) {
-        Room room = new Room(name, description);
-        session.persist(room);
-        return room;
+        Session session = getSession();
+        Transaction transaction = null;
+
+        try {
+            transaction = session.beginTransaction();
+            Room room = new Room(name, description);
+            session.persist(room);
+            transaction.commit();
+            return room;
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error adding room: " + e.getMessage(), e);
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public Room getRoomById(int id) {
-        return session.get(Room.class, id);
+        Session session = getSession();
+
+        try {
+            return session.get(Room.class, id);
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public void updateRoom(Room room) {
-        session.merge(room);
+        Session session = getSession();
+        Transaction transaction = null;
+
+        try {
+            transaction = session.beginTransaction();
+            session.merge(room);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error updating room: " + e.getMessage(), e);
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public void deleteRoom(Room room) {
-        session.remove(room);
+        Session session = getSession();
+        Transaction transaction = null;
+
+        try {
+            transaction = session.beginTransaction();
+            session.remove(session.merge(room));
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error deleting room: " + e.getMessage(), e);
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public List<Room> getAllRooms() {
-        String query = "FROM Room";
-        return session.createQuery(query, Room.class).list();
+        Session session = getSession();
+
+        try {
+            String query = "FROM Room";
+            return session.createQuery(query, Room.class).list();
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public List<Room> getRoomsByLocationId(int locationId) {
-        String query = "FROM Room WHERE location.id = :locationId";
-        return session.createQuery(query, Room.class)
-                .setParameter("locationId", locationId)
-                .list();
+        Session session = getSession();
+
+        try {
+            String query = "FROM Room WHERE location.id = :locationId";
+            return session.createQuery(query, Room.class)
+                    .setParameter("locationId", locationId)
+                    .list();
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public int getTotalCapacityByLocation(int locationId) {
-        String query = "SELECT COALESCE(SUM(seatCapacity), 0) FROM Room WHERE location.id = :locationId";
-        return Math.toIntExact(session.createQuery(query, Long.class)
-                .setParameter("locationId", locationId)
-                .getSingleResult());
+        Session session = getSession();
+
+        try {
+            String query = "SELECT COALESCE(SUM(seatCapacity), 0) FROM Room WHERE location.id = :locationId";
+            return Math.toIntExact(session.createQuery(query, Long.class)
+                    .setParameter("locationId", locationId)
+                    .getSingleResult());
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public java.util.List<Room> getRoomsByEventId(int eventId) {
-        String query = "SELECT r FROM Event e JOIN e.rooms r WHERE e.id = :eventId";
-        return session.createQuery(query, Room.class)
-                .setParameter("eventId", eventId)
-                .list();
+        Session session = getSession();
+
+        try {
+            String query = "SELECT r FROM Event e JOIN e.rooms r WHERE e.id = :eventId";
+            return session.createQuery(query, Room.class)
+                    .setParameter("eventId", eventId)
+                    .list();
+        } finally {
+            session.close();
+        }
     }
 }

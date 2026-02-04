@@ -12,13 +12,6 @@ public class RoomService {
         this.roomDAO = roomDAO;
     }
 
-    public void commit() {
-        roomDAO.commit();
-    }
-
-    public void rollback() {
-        roomDAO.rollback();
-    }
 
     public Room addRoom(String name, String description) {
         return roomDAO.addRoom(name, description);

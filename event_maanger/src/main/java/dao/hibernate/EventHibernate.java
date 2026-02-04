@@ -2,61 +2,60 @@ package dao.hibernate;
 
 import dao.EventDAO;
 import model.Event;
-import model.EventReview;
-import model.Location;
-import model.Room;
-import model.Ticket;
-import model.User;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 
 import java.util.List;
-import java.util.Map;
 
 public class EventHibernate implements EventDAO {
 
-    SessionFactory sessionFactory;
-    Session session;
-    Transaction transaction;
-
     public EventHibernate() {
-        sessionFactory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Event.class)
-                .addAnnotatedClass(Ticket.class)
-                .addAnnotatedClass(EventReview.class)
-                .addAnnotatedClass(Location.class)
-                .addAnnotatedClass(Room.class)
-                .addAnnotatedClass(User.class)
-                .buildSessionFactory();
-        session = sessionFactory.openSession();
-        transaction = session.beginTransaction();
+        // No-arg constructor - SessionFactory is shared via singleton
     }
 
+    @Override
     public void commit() {
-        transaction.commit();
+        // No-op: transactions are handled by filter or per-operation
     }
 
+    @Override
     public void rollback() {
-        transaction.rollback();
+        // No-op: transactions are handled by filter or per-operation
     }
 
     @Override
     public Event addEvent(String name, String description, String eventDate, String eventTime, String eventStartDate, String eventEndDate, boolean numberedSeats) {
-        Event event = new Event(name, description, eventDate, eventTime, eventStartDate, eventEndDate, numberedSeats);
-        session.persist(event);
-        return event;
+        Session session = HibernateSessionHelper.getCurrentSession();
+        boolean isExternalSession = HibernateSessionHelper.isInHttpContext();
+
+        try {
+            Event event = new Event(name, description, eventDate, eventTime, eventStartDate, eventEndDate, numberedSeats);
+            session.persist(event);
+            if (!isExternalSession) {
+                session.getTransaction().commit();
+            }
+            return event;
+        } catch (Exception e) {
+            if (!isExternalSession && session.getTransaction().isActive()) {
+                session.getTransaction().rollback();
+            }
+            throw new RuntimeException("Error adding event: " + e.getMessage(), e);
+        } finally {
+            if (!isExternalSession && session.isOpen()) {
+                session.close();
+            }
+        }
     }
 
     @Override
     public Event getEventById(int id) {
+        Session session = HibernateSessionHelper.getCurrentSession();
         return session.get(Event.class, id);
     }
 
     @Override
     public Event getEventByName(String name) {
+        Session session = HibernateSessionHelper.getCurrentSession();
         String query = "FROM Event WHERE name = :name";
         return session.createQuery(query, Event.class)
                 .setParameter("name", name)
@@ -65,41 +64,139 @@ public class EventHibernate implements EventDAO {
 
     @Override
     public void updateEvent(Event event) {
-        session.merge(event);
+        Session session = HibernateSessionHelper.getCurrentSession();
+        boolean isExternalSession = HibernateSessionHelper.isInHttpContext();
+        Transaction transaction = null;
+
+        try {
+            if (isExternalSession) {
+                // Transaction already managed by filter
+                session.merge(event);
+            } else {
+                // Create new transaction for standalone operations
+                transaction = session.beginTransaction();
+                session.merge(event);
+                transaction.commit();
+            }
+        } catch (Exception e) {
+            if (!isExternalSession && transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error updating event: " + e.getMessage(), e);
+        } finally {
+            if (!isExternalSession && session.isOpen()) {
+                session.close();
+            }
+        }
     }
 
     @Override
     public void deleteEvent(Event event) {
-        session.remove(event);
+        Session session = HibernateSessionHelper.getCurrentSession();
+        boolean isExternalSession = HibernateSessionHelper.isInHttpContext();
+        Transaction transaction = null;
+
+        try {
+            if (isExternalSession) {
+                // Transaction already managed by filter
+                session.remove(session.merge(event));
+            } else {
+                // Create new transaction for standalone operations
+                transaction = session.beginTransaction();
+                session.remove(session.merge(event));
+                transaction.commit();
+            }
+        } catch (Exception e) {
+            if (!isExternalSession && transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error deleting event: " + e.getMessage(), e);
+        } finally {
+            if (!isExternalSession && session.isOpen()) {
+                session.close();
+            }
+        }
     }
 
     @Override
     public List<Event> getAllEvents() {
+        Session session = HibernateSessionHelper.getCurrentSession();
         String query = "FROM Event";
         return session.createQuery(query, Event.class).list();
     }
 
     @Override
     public void setTicketPrice(int eventId, String ticketType, double price) {
-        Event event = getEventById(eventId);
-        if (event != null) {
-            event.getTicketPrices().put(ticketType, price);
-            session.merge(event);
+        Session session = HibernateSessionHelper.getCurrentSession();
+        boolean isExternalSession = HibernateSessionHelper.isInHttpContext();
+        Transaction transaction = null;
+
+        try {
+            if (isExternalSession) {
+                Event event = session.get(Event.class, eventId);
+                if (event != null) {
+                    event.getTicketPrices().put(ticketType, price);
+                    session.merge(event);
+                }
+            } else {
+                transaction = session.beginTransaction();
+                Event event = session.get(Event.class, eventId);
+                if (event != null) {
+                    event.getTicketPrices().put(ticketType, price);
+                    session.merge(event);
+                }
+                transaction.commit();
+            }
+        } catch (Exception e) {
+            if (!isExternalSession && transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error setting ticket price: " + e.getMessage(), e);
+        } finally {
+            if (!isExternalSession && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public void setTicketQuantity(int eventId, String ticketType, int quantity) {
-        Event event = getEventById(eventId);
-        if (event != null) {
-            event.getTicketQuantities().put(ticketType, quantity);
-            session.merge(event);
+        Session session = HibernateSessionHelper.getCurrentSession();
+        boolean isExternalSession = HibernateSessionHelper.isInHttpContext();
+        Transaction transaction = null;
+
+        try {
+            if (isExternalSession) {
+                Event event = session.get(Event.class, eventId);
+                if (event != null) {
+                    event.getTicketQuantities().put(ticketType, quantity);
+                    session.merge(event);
+                }
+            } else {
+                transaction = session.beginTransaction();
+                Event event = session.get(Event.class, eventId);
+                if (event != null) {
+                    event.getTicketQuantities().put(ticketType, quantity);
+                    session.merge(event);
+                }
+                transaction.commit();
+            }
+        } catch (Exception e) {
+            if (!isExternalSession && transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error setting ticket quantity: " + e.getMessage(), e);
+        } finally {
+            if (!isExternalSession && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     @Override
     public double getTicketPrice(int eventId, String ticketType) {
-        Event event = getEventById(eventId);
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Event event = session.get(Event.class, eventId);
         if (event != null && event.getTicketPrices() != null) {
             return event.getTicketPrices().getOrDefault(ticketType, 0.0);
         }
@@ -108,7 +205,8 @@ public class EventHibernate implements EventDAO {
 
     @Override
     public int getTicketQuantity(int eventId, String ticketType) {
-        Event event = getEventById(eventId);
+        Session session = HibernateSessionHelper.getCurrentSession();
+        Event event = session.get(Event.class, eventId);
         if (event != null && event.getTicketQuantities() != null) {
             return event.getTicketQuantities().getOrDefault(ticketType, 0);
         }
@@ -117,6 +215,7 @@ public class EventHibernate implements EventDAO {
 
     @Override
     public double getAverageRatingForEvent(int eventId) {
+        Session session = HibernateSessionHelper.getCurrentSession();
         String query = "SELECT AVG(rating) FROM EventReview WHERE event.id = :eventId";
         Double result = session.createQuery(query, Double.class)
                 .setParameter("eventId", eventId)

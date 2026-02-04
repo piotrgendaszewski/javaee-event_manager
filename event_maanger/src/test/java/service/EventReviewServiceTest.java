@@ -122,15 +122,6 @@ class EventReviewServiceTest {
         assertEquals(4.0, result);
     }
 
-    @Test
-    void testCommit() {
-        assertDoesNotThrow(() -> eventReviewService.commit());
-    }
-
-    @Test
-    void testRollback() {
-        assertDoesNotThrow(() -> eventReviewService.rollback());
-    }
 
     private static class TestEventReviewDAO implements EventReviewDAO {
         private List<EventReview> reviews = new ArrayList<>();

@@ -87,15 +87,6 @@ class RoomServiceTest {
         assertNotNull(result);
     }
 
-    @Test
-    void testCommit() {
-        assertDoesNotThrow(() -> roomService.commit());
-    }
-
-    @Test
-    void testRollback() {
-        assertDoesNotThrow(() -> roomService.rollback());
-    }
 
     private static class TestRoomDAO implements RoomDAO {
         private List<Room> rooms = new ArrayList<>();

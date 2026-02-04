@@ -12,13 +12,6 @@ public class EventReviewService {
         this.eventReviewDAO = eventReviewDAO;
     }
 
-    public void commit() {
-        eventReviewDAO.commit();
-    }
-
-    public void rollback() {
-        eventReviewDAO.rollback();
-    }
 
     public EventReview addReview(int eventId, int userId, int rating, String reviewText, String reviewDate) {
         return eventReviewDAO.addReview(eventId, userId, rating, reviewText, reviewDate);

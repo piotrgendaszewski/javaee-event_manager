@@ -97,15 +97,6 @@ class AuthServiceTest {
         );
     }
 
-    @Test
-    void testCommit() {
-        assertDoesNotThrow(() -> authService.commit());
-    }
-
-    @Test
-    void testRollback() {
-        assertDoesNotThrow(() -> authService.rollback());
-    }
 
     @Test
     void testRegistrationAndLogin() {

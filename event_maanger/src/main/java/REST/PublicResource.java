@@ -319,7 +319,6 @@ public class PublicResource {
                     user.getAddress(),
                     user.getPhoneNumber()
             );
-            authService.commit();
 
             Map<String, String> response = new HashMap<>();
             response.put("message", "User registered successfully");
@@ -334,7 +333,6 @@ public class PublicResource {
                     .entity(errorResponse(e.getMessage()))
                     .build();
         } catch (Exception e) {
-            authService.rollback();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(errorResponse("Registration failed: " + e.getMessage()))
                     .build();

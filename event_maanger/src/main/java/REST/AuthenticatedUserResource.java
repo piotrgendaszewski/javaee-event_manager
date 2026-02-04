@@ -232,7 +232,6 @@ public class AuthenticatedUserResource {
                 review.getReviewText(),
                 review.getReviewDate()
         );
-        eventReviewService.commit();
 
         return PrivateDTOMapper.toReviewDTO(newReview);
     }
@@ -269,7 +268,6 @@ public class AuthenticatedUserResource {
 
         review.setId(reviewId);
         eventReviewService.updateReview(review);
-        eventReviewService.commit();
 
         return PrivateDTOMapper.toReviewDTO(review);
     }
@@ -299,7 +297,6 @@ public class AuthenticatedUserResource {
         }
 
         eventReviewService.deleteReview(review);
-        eventReviewService.commit();
     }
 }
 

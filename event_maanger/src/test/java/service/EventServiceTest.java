@@ -182,16 +182,6 @@ class EventServiceTest {
         assertEquals(25, eventService.getTicketQuantity(event.getId(), "Premium"));
     }
 
-    // ...existing code...
-    @Test
-    void testCommit() {
-        assertDoesNotThrow(() -> eventService.commit());
-    }
-
-    @Test
-    void testRollback() {
-        assertDoesNotThrow(() -> eventService.rollback());
-    }
 
     // ...existing code...
     @Test

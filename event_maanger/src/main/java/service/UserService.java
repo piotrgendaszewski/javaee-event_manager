@@ -12,13 +12,6 @@ public class UserService {
         this.userDAO = userDAO;
     }
 
-    public void commit() {
-        userDAO.commit();
-    }
-
-    public void rollback() {
-        userDAO.rollback();
-    }
 
     public User getUser(String login) {
         return userDAO.getUserByLogin(login);

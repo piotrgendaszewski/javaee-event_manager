@@ -147,18 +147,6 @@ class UserServiceTest {
         assertTrue(result.isAdmin());
     }
 
-    // ===== TRANSACTION TESTS =====
-
-    @Test
-    void testCommit() {
-        assertDoesNotThrow(() -> userService.commit());
-    }
-
-    @Test
-    void testRollback() {
-        assertDoesNotThrow(() -> userService.rollback());
-    }
-
     // ===== INTEGRATION TESTS =====
 
     @Test
@@ -175,7 +163,6 @@ class UserServiceTest {
         assertEquals("Eve", retrieved.getFirstName());
 
         userService.deleteUser(newUser);
-        userService.commit();
     }
 
     @Test

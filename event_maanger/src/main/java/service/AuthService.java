@@ -44,6 +44,7 @@ public class AuthService {
         newUser.setPasswordHash(passwordHash);
         newUser.setAdmin(false); // New users are not admins by default
 
+        // Add user to database
         userDAO.addUser(login, email);
         User savedUser = userDAO.getUserByLogin(login);
 
@@ -54,7 +55,7 @@ public class AuthService {
             savedUser.setPhoneNumber(phoneNumber);
             savedUser.setAddress(address);
             userDAO.updateUser(savedUser);
-            userDAO.commit();
+            // No need to call commit - updateUser handles transaction
         }
 
         return savedUser;
@@ -86,19 +87,5 @@ public class AuthService {
         return JwtUtil.generateToken(user.getId(), user.getLogin(), user.isAdmin());
     }
 
-    /**
-     * Hashes a password using SHA-256
-     * @param password plain text password
-     * @return hashed password
-     */
-    // Method moved to PasswordUtil class
-
-    public void commit() {
-        userDAO.commit();
-    }
-
-    public void rollback() {
-        userDAO.rollback();
-    }
 }
 

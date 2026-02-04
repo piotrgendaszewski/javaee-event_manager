@@ -94,7 +94,6 @@ public class AdminResource {
                 eventService.setTicketQuantity(newEvent.getId(), entry.getKey(), entry.getValue());
             }
         }
-        eventService.commit();
         return AdminDTOMapper.toEventDTO(newEvent);
     }
 
@@ -109,7 +108,6 @@ public class AdminResource {
         }
         event.setId(id);
         eventService.updateEvent(event);
-        eventService.commit();
         return AdminDTOMapper.toEventDTO(event);
     }
 
@@ -120,7 +118,6 @@ public class AdminResource {
         Event event = eventService.getEvent(id);
         if (event != null) {
             eventService.deleteEvent(event);
-            eventService.commit();
         }
     }
 
@@ -161,7 +158,6 @@ public class AdminResource {
         Location newLocation = locationService.addLocation(location.getName(), location.getAddress());
         newLocation.setMaxAvailableSeats(location.getMaxAvailableSeats());
         locationService.updateLocation(newLocation);
-        locationService.commit();
         return AdminDTOMapper.toLocationDTO(newLocation);
     }
 
@@ -182,7 +178,6 @@ public class AdminResource {
         }
         location.setId(id);
         locationService.updateLocation(location);
-        locationService.commit();
         return AdminDTOMapper.toLocationDTO(location);
     }
 
@@ -193,7 +188,6 @@ public class AdminResource {
         Location location = locationService.getLocation(id);
         if (location != null) {
             locationService.deleteLocation(location);
-            locationService.commit();
         }
     }
 
@@ -246,7 +240,6 @@ public class AdminResource {
         newRoom.setLocation(room.getLocation());
         newRoom.setSeatCapacity(room.getSeatCapacity());
         roomService.updateRoom(newRoom);
-        roomService.commit();
         return AdminDTOMapper.toRoomDTO(newRoom);
     }
 
@@ -270,7 +263,6 @@ public class AdminResource {
 
         room.setId(id);
         roomService.updateRoom(room);
-        roomService.commit();
         return AdminDTOMapper.toRoomDTO(room);
     }
 
@@ -281,7 +273,6 @@ public class AdminResource {
         Room room = roomService.getRoom(id);
         if (room != null) {
             roomService.deleteRoom(room);
-            roomService.commit();
         }
     }
 
@@ -325,7 +316,6 @@ public class AdminResource {
             newUser.setPhoneNumber(user.getPhoneNumber());
             newUser.setAdmin(user.isAdmin());
             userService.updateUser(newUser);
-            userService.commit();
             return AdminDTOMapper.toUserDTO(newUser);
         } catch (IllegalArgumentException e) {
             throw new BadRequestException(e.getMessage());
@@ -359,7 +349,6 @@ public class AdminResource {
                     user.getFirstName(),
                     user.getLastName()
             );
-            userService.commit();
             return AdminDTOMapper.toUserDTO(newAdmin);
         } catch (IllegalArgumentException e) {
             throw new BadRequestException(e.getMessage());
@@ -378,7 +367,6 @@ public class AdminResource {
 
         user.setId(id);
         userService.updateUser(user);
-        userService.commit();
         return AdminDTOMapper.toUserDTO(user);
     }
 
@@ -389,7 +377,6 @@ public class AdminResource {
         User user = userService.getUserById(id);
         if (user != null) {
             userService.deleteUser(user);
-            userService.commit();
         }
     }
 
