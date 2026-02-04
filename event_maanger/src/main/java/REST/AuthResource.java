@@ -15,27 +15,15 @@ public class AuthResource {
 
     private final AuthService authService;
 
-    /**
-     * Constructor with dependency injection
-     * Used by Jersey for request-scoped instantiation
-     */
     public AuthResource() {
         // Create single instance per request
         this.authService = new AuthService(new dao.hibernate.UserHibernate());
     }
 
-    /**
-     * Constructor for testing with injected AuthService
-     * @param authService injected AuthService instance
-     */
     public AuthResource(AuthService authService) {
         this.authService = authService;
     }
 
-    /**
-     * User registration endpoint
-     * POST /api/auth/register
-     */
     @POST
     @Path("/register")
     public Response register(RegistrationRequest request) {
@@ -84,10 +72,6 @@ public class AuthResource {
         }
     }
 
-    /**
-     * User login endpoint
-     * POST /api/auth/login
-     */
     @POST
     @Path("/login")
     public Response login(LoginRequest request) {

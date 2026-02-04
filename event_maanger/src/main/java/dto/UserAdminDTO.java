@@ -26,7 +26,6 @@ public class UserAdminDTO {
         this.admin = admin;
     }
 
-    // Getters
     public int getId() { return id; }
     public String getLogin() { return login; }
     public String getEmail() { return email; }

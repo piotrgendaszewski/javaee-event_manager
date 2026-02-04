@@ -68,10 +68,6 @@ public class TicketService {
         return ticketDAO.getRemainingTicketsByEvent(eventId);
     }
 
-    /**
-     * Get user tickets with minimal event data (no nested collections)
-     * Used for reducing response payload size
-     */
     public List<Ticket> getTicketsByUserMinimal(int userId) {
         List<Ticket> tickets = ticketDAO.getTicketsByUserId(userId);
 

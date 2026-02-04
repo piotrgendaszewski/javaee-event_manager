@@ -54,7 +54,6 @@ public class LocationPrivateDTO {
             this.validToDate = validToDate;
         }
 
-        // Getters
         public int getTicketId() { return ticketId; }
         public int getEventId() { return eventId; }
         public String getEventName() { return eventName; }

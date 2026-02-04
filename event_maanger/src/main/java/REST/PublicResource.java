@@ -39,11 +39,6 @@ public class PublicResource {
 
     // ===== EVENTS ENDPOINTS =====
 
-    /**
-     * Get all available events - PUBLIC endpoint
-     * GET /public/events
-     * Returns EventPublicDTO with essential data only (no full entity graph)
-     */
     @GET
     @Path("/events")
     public List<EventPublicDTO> getAllEvents() {
@@ -56,18 +51,6 @@ public class PublicResource {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get events with optional filters
-     * GET /public/events/search
-     * Returns EventPublicDTO with essential data only
-     * @param eventName filter by event name (fragment)
-     * @param locationName filter by location name (fragment)
-     * @param startDate filter by event start date (YYYY-MM-DD format)
-     * @param endDate filter by event end date (YYYY-MM-DD format)
-     * @param minPrice filter by minimum ticket price
-     * @param maxPrice filter by maximum ticket price
-     * @param onlyAvailable filter only events with available tickets
-     */
     @GET
     @Path("/events/search")
     public List<EventPublicDTO> searchEvents(
@@ -149,11 +132,6 @@ public class PublicResource {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get event by ID - PUBLIC endpoint
-     * GET /public/events/{id}
-     * Returns EventPublicDTO with essential data only
-     */
     @GET
     @Path("/events/{id}")
     public EventPublicDTO getEvent(@PathParam("id") int id) {
@@ -166,11 +144,6 @@ public class PublicResource {
         return new EventPublicDTO(event, remaining, avgRating);
     }
 
-    /**
-     * Get event by name - PUBLIC endpoint
-     * GET /public/events/name/{name}
-     * Returns EventPublicDTO with essential data only
-     */
     @GET
     @Path("/events/name/{name}")
     public EventPublicDTO getEventByName(@PathParam("name") String name) {
@@ -183,11 +156,6 @@ public class PublicResource {
         return new EventPublicDTO(event, remaining, avgRating);
     }
 
-
-    /**
-     * Get remaining tickets count for event - PUBLIC endpoint
-     * GET /public/events/{eventId}/tickets/remaining
-     */
     @GET
     @Path("/events/{eventId}/tickets/remaining")
     public Map<String, Integer> getRemainingTickets(@PathParam("eventId") int eventId) {
@@ -197,12 +165,6 @@ public class PublicResource {
 
     // ===== REGISTRATION ENDPOINT =====
 
-    /**
-     * User registration endpoint - PUBLIC
-     * POST /public/register
-     * No authentication required
-     * Automatically sets isAdmin=false for new users
-     */
     @POST
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)

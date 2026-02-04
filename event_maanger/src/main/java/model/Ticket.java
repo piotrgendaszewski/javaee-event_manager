@@ -2,14 +2,6 @@ package model;
 
 import jakarta.persistence.*;
 
-/**
- * Ticket entity representing a ticket for an event.
- *
- * For events with numbered seats (@see Event.numberedSeats):
- * - Seat number is required (cannot be null or empty)
- * - Each combination of event_id + seat_number must be unique
- * - Only one ticket can be sold per seat
- */
 @Entity
 @Table(name = "tickets", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"event_id", "seat_number"}, name = "uc_event_seat")
@@ -147,10 +139,6 @@ public class Ticket {
         this.validToDate = validToDate;
     }
 
-    /**
-     * Validates that if the event has numbered seats, the seat number must not be null
-     * @return true if valid, false otherwise
-     */
     public boolean isValid() {
         if (event != null && event.isNumberedSeats()) {
             return seatNumber != null && !seatNumber.trim().isEmpty();
@@ -158,11 +146,6 @@ public class Ticket {
         return true;
     }
 
-    /**
-     * Checks if ticket has required seat information for numbered seat events.
-     * For events with numbered seats, seat number is mandatory.
-     * @throws IllegalArgumentException if ticket is invalid for numbered seat event
-     */
     public void validateForNumberedSeats() throws IllegalArgumentException {
         if (event != null && event.isNumberedSeats()) {
             if (seatNumber == null || seatNumber.trim().isEmpty()) {

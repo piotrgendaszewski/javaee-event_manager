@@ -79,10 +79,6 @@ public class Room {
         this.location = location;
     }
 
-    /**
-     * Validates room against its location's capacity constraints
-     * @throws IllegalArgumentException if room capacity exceeds location's max capacity
-     */
     public void validateAgainstLocation() throws IllegalArgumentException {
         if (location != null && location.getMaxAvailableSeats() > 0) {
             if (seatCapacity > location.getMaxAvailableSeats()) {
@@ -94,11 +90,6 @@ public class Room {
         }
     }
 
-    /**
-     * Checks if adding this room would exceed location's total capacity
-     * @param totalCapacityInLocation current total capacity of all rooms in location (excluding this room)
-     * @return true if room can be added, false otherwise
-     */
     public boolean canBeAddedToLocation(int totalCapacityInLocation) {
         if (location == null || location.getMaxAvailableSeats() == 0) {
             return true;
@@ -106,10 +97,7 @@ public class Room {
         return (totalCapacityInLocation + seatCapacity) <= location.getMaxAvailableSeats();
     }
 
-    /**
-     * Gets room capacity information
-     * @return capacity info string
-     */
+
     public String getCapacityInfo() {
         return "Room: " + name + " - Capacity: " + seatCapacity + " seats";
     }

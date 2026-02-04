@@ -61,12 +61,6 @@ public class PrivateDTOMapper {
         );
     }
 
-
-    /**
-     * Convert Location to LocationPrivateDTO with user's tickets from that location
-     * @param location Location entity
-     * @param userTickets List of user's tickets filtered for this location
-     */
     public static LocationPrivateDTO toLocationDTO(Location location, List<Ticket> userTickets) {
         if (location == null) return null;
 

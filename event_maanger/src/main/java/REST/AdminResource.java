@@ -34,9 +34,7 @@ public class AdminResource {
         this.userService = new UserService(new UserHibernate());
     }
 
-    /**
-     * Verify admin access
-     */
+
     private void verifyAdminAccess(ContainerRequestContext requestContext) {
         Boolean isAdmin = (Boolean) requestContext.getProperty("isAdmin");
 
@@ -165,7 +163,7 @@ public class AdminResource {
             return AdminDTOMapper.toLocationDTO(newLocation);
         } catch (Exception e) {
             SQLErrorHandler.handleSQLException(e, "create location");
-            return null; // Will not reach due to exception
+            return null;
         }
     }
 
@@ -252,7 +250,7 @@ public class AdminResource {
             return AdminDTOMapper.toRoomDTO(newRoom);
         } catch (Exception e) {
             SQLErrorHandler.handleSQLException(e, "create room");
-            return null; // Will not reach due to exception
+            return null;
         }
     }
 
@@ -334,14 +332,11 @@ public class AdminResource {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             SQLErrorHandler.handleSQLException(e, "create user");
-            return null; // Will not reach due to exception
+            return null;
         }
     }
 
-    /**
-     * Create new admin user with password
-     * POST /admin/users/create-admin
-     */
+
     @POST
     @Path("/users/create-admin")
     public UserAdminDTO createAdminUser(User user, @Context ContainerRequestContext requestContext) {
@@ -398,8 +393,6 @@ public class AdminResource {
             userService.deleteUser(user);
         }
     }
-
-    // ...existing code...
 }
 
 

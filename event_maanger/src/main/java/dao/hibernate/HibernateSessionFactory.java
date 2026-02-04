@@ -8,17 +8,10 @@ import model.User;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-/**
- * Singleton factory for Hibernate SessionFactory
- * Ensures only one SessionFactory is created for the entire application
- * This prevents database locking issues with SQLite
- */
+
 public class HibernateSessionFactory {
     private static SessionFactory sessionFactory;
 
-    /**
-     * Private constructor to prevent instantiation
-     */
     private HibernateSessionFactory() {
     }
 

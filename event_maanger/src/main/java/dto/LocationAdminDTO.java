@@ -17,7 +17,6 @@ public class LocationAdminDTO {
         this.maxAvailableSeats = maxAvailableSeats;
     }
 
-    // Getters
     public int getId() { return id; }
     public String getName() { return name; }
     public String getAddress() { return address; }

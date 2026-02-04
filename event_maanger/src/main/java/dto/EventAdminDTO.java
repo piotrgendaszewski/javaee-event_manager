@@ -34,7 +34,6 @@ public class EventAdminDTO {
         this.ticketQuantities = ticketQuantities;
     }
 
-    // Getters
     public int getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }

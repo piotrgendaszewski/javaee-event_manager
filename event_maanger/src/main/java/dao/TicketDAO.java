@@ -17,13 +17,8 @@ public interface TicketDAO {
     List<Ticket> getTicketsByEventId(int eventId);
     List<Ticket> getTicketsByUserId(int userId);
     int countTicketsByEventAndType(int eventId, String ticketType);
-
     Ticket getTicketByEventAndSeat(int eventId, String seatNumber);
     boolean isTicketForSeatExists(int eventId, String seatNumber);
-
-    // Returns list of users who bought tickets for given event
     List<User> getUsersByEventId(int eventId);
-
-    // Returns remaining quantities per ticket type for an event (ticketType -> remainingCount)
     Map<String, Integer> getRemainingTicketsByEvent(int eventId);
 }

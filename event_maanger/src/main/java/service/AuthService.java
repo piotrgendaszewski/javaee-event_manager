@@ -12,18 +12,6 @@ public class AuthService {
         this.userDAO = userDAO;
     }
 
-    /**
-     * Registers a new user
-     * @param login username/login
-     * @param email user email
-     * @param password plain text password
-     * @param firstName first name
-     * @param lastName last name
-     * @param address user address
-     * @param phoneNumber phone number
-     * @return User object if successful
-     * @throws IllegalArgumentException if user already exists or invalid input
-     */
     public User registerUser(String login, String email, String password, String firstName,
                             String lastName, String address, String phoneNumber) throws IllegalArgumentException {
         if (login == null || login.trim().isEmpty() || password == null || password.trim().isEmpty()) {
@@ -61,13 +49,6 @@ public class AuthService {
         return savedUser;
     }
 
-    /**
-     * Authenticates user and returns JWT token
-     * @param login username/login
-     * @param password plain text password
-     * @return JWT token if authentication successful
-     * @throws IllegalArgumentException if credentials are invalid
-     */
     public String login(String login, String password) throws IllegalArgumentException {
         if (login == null || login.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("Login and password are required");

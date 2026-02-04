@@ -45,7 +45,6 @@ public class TicketPrivateDTO {
         this.locationAddress = locationAddress;
     }
 
-    // Getters
     public int getId() { return id; }
     public String getTicketType() { return ticketType; }
     public double getPrice() { return price; }

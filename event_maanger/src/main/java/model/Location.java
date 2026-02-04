@@ -85,32 +85,18 @@ public class Location {
         this.maxAvailableSeats = maxAvailableSeats;
     }
 
-    /**
-     * Validates that total seats in all rooms does not exceed location's max available seats
-     * @return true if valid, false otherwise
-     */
+
     public boolean areRoomSeatsValid() {
         if (rooms == null || rooms.isEmpty()) {
             return true;
         }
-        // Note: Room capacity would need to be added to Room model
         return true;
     }
 
-    /**
-     * Checks if adding a room with given capacity would exceed max available seats
-     * @param totalRoomCapacity total capacity from all current rooms in this location
-     * @param newRoomCapacity capacity of new room being added
-     * @return true if within limits, false otherwise
-     */
     public boolean canAddRoom(int totalRoomCapacity, int newRoomCapacity) {
         return (totalRoomCapacity + newRoomCapacity) <= maxAvailableSeats;
     }
 
-    /**
-     * Gets total capacity information
-     * @return total capacity needed for validation
-     */
     public String getCapacityInfo() {
         return "Location: " + name + " - Max Capacity: " + maxAvailableSeats + " seats";
     }

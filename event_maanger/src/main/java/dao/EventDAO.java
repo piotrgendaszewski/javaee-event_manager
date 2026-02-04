@@ -14,7 +14,6 @@ public interface EventDAO {
     void updateEvent(Event event);
     void deleteEvent(Event event);
     List<Event> getAllEvents();
-
     void setTicketPrice(int eventId, String ticketType, double price);
     void setTicketQuantity(int eventId, String ticketType, int quantity);
     double getTicketPrice(int eventId, String ticketType);

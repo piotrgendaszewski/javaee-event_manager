@@ -22,7 +22,6 @@ public class RoomAdminDTO {
         this.seatCapacity = seatCapacity;
     }
 
-    // Getters
     public int getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }

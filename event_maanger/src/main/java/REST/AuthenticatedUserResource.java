@@ -16,11 +16,7 @@ import service.TicketService;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * API for authenticated users
- * Allows users to view their tickets and bookings
- * Returns DTO objects to avoid nested collection issues
- */
+
 @Path("/private")
 @Produces("application/json")
 @Consumes("application/json")
@@ -36,10 +32,6 @@ public class AuthenticatedUserResource {
 
     // ===== TICKETS =====
 
-    /**
-     * Get user's tickets with location info
-     * Requires authentication
-     */
     @GET
     @Path("/tickets")
     public List<TicketPrivateDTO> getUserTickets(@Context ContainerRequestContext requestContext) {
@@ -53,13 +45,6 @@ public class AuthenticatedUserResource {
         return PrivateDTOMapper.toTicketDTOList(tickets);
     }
 
-    /**
-     * Get user's tickets with filters and location info
-     * Requires authentication
-     * @param validOnly if true, return only valid tickets (validFromDate <= today <= validToDate)
-     * @param startDate filter tickets valid from this date (format: YYYY-MM-DD)
-     * @param endDate filter tickets valid until this date (format: YYYY-MM-DD)
-     */
     @GET
     @Path("/tickets/search")
     public List<TicketPrivateDTO> searchUserTickets(
@@ -105,10 +90,6 @@ public class AuthenticatedUserResource {
         return PrivateDTOMapper.toTicketDTOList(userTickets);
     }
 
-    /**
-     * Get specific ticket details
-     * Requires authentication and ticket ownership
-     */
     @GET
     @Path("/tickets/{ticketId}")
     public TicketPrivateDTO getUserTicket(@PathParam("ticketId") int ticketId,
@@ -134,10 +115,6 @@ public class AuthenticatedUserResource {
 
     // ===== LOCATIONS =====
 
-    /**
-     * Get user's locations - only locations where user has tickets
-     * Requires authentication
-     */
     @GET
     @Path("/locations")
     public List<LocationPrivateDTO> getUserLocations(@Context ContainerRequestContext requestContext) {
@@ -161,10 +138,6 @@ public class AuthenticatedUserResource {
         return PrivateDTOMapper.toLocationDTOList(userLocations, userTickets);
     }
 
-    /**
-     * Get specific location with user's tickets for that location
-     * Requires authentication
-     */
     @GET
     @Path("/locations/{locationId}")
     public LocationPrivateDTO getUserLocation(@PathParam("locationId") int locationId,
